@@ -443,14 +443,17 @@ function sendOrder() {
     total
   };
 
-  if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.sendData(JSON.stringify(payload));
-  }
-
-  // Vider le panier et afficher confirmation
+  // Vider le panier et afficher confirmation EN PREMIER
   cart.length = 0;
   updateCartBadge();
   showConfirmation();
+
+  // Envoyer les données au bot après que l'écran de confirmation soit affiché
+  if (window.Telegram?.WebApp) {
+    setTimeout(() => {
+      try { window.Telegram.WebApp.sendData(JSON.stringify(payload)); } catch(e) {}
+    }, 1500);
+  }
 }
 
 function showConfirmation() {
