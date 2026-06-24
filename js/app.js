@@ -9,7 +9,7 @@ let deliveryDistanceKm = 0;
 
 const ORIGIN = [50.6292, 3.0573];
 const PRICE_PER_KM = 0.75;
-const API_URL = 'https://cdl59-bot.up.railway.app/order';
+const API_URL = 'https://cdl59-bot-production.up.railway.app/order';
 const API_SECRET = 'cdl59-secret-2025';
 
 const PRODUCTS = {
