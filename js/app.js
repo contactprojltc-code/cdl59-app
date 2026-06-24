@@ -9,9 +9,8 @@ let deliveryDistanceKm = 0;
 
 const ORIGIN = [50.6292, 3.0573];
 const PRICE_PER_KM = 0.75;
-const BOT_TOKEN = '8974607961:AAGfBjUN88qBACrSKmseireIHG4m2FGsXE8';
-const GROUP_SURPLACE = -1004408580478;
-const GROUP_LIVRAISON = -1004376864564;
+const API_URL = 'https://cdl59-bot.up.railway.app/order';
+const API_SECRET = 'cdl59-secret-2025';
 
 const PRODUCTS = {
   tank: {
@@ -443,65 +442,49 @@ async function sendOrder() {
   updateCartBadge();
   showConfirmation();
 
-  // Envoyer chaque article dans le bon groupe via l'API bot
-  for (const item of orderSnapshot) {
-    let msg, groupId;
-
-    if (item.delivery === 'surplace') {
-      msg =
-        `🛒 NOUVELLE COMMANDE — SUR PLACE\n\n` +
-        `👤 Client : ${username}\n` +
-        `🎈 Produit : ${item.name}\n` +
-        `📦 Quantité : ${item.option}\n` +
-        `📍 Retrait : Sur place Lille\n` +
-        `💰 Total : ${item.total}€\n\n` +
-        `📞 À contacter sur Telegram : ${username}`;
-      groupId = GROUP_SURPLACE;
-    } else {
-      const distKm = parseFloat(item.deliveryLabel.match(/([\d.]+)km/)?.[1] || 0);
-      msg =
-        `🛒 NOUVELLE COMMANDE — LIVRAISON\n\n` +
-        `👤 Client : ${username}\n` +
-        `🎈 Produit : ${item.name}\n` +
-        `📦 Quantité : ${item.option}\n` +
-        `📍 Adresse : ${item.deliveryAddress}\n` +
-        `📏 Distance : ${distKm.toFixed(1)} km\n` +
-        `🚗 Frais livraison : ${item.deliveryPrice}€\n` +
-        `💰 Produit : ${item.price}€\n` +
-        `💳 Total : ${item.total}€\n\n` +
-        `📞 À contacter sur Telegram : ${username}`;
-      groupId = GROUP_LIVRAISON;
-    }
-
-    try {
-      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: groupId, text: msg })
-      });
-    } catch (e) { /* ignore réseau */ }
-  }
+  // Envoyer via notre API sécurisée (token bot reste côté serveur)
+  try {
+    await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Secret': API_SECRET
+      },
+      body: JSON.stringify({
+        username,
+        order: orderSnapshot.map(i => ({
+          name: i.name,
+          option: i.option,
+          price: i.price,
+          delivery: i.delivery,
+          deliveryPrice: i.deliveryPrice,
+          deliveryAddress: i.deliveryAddress,
+          distanceKm: parseFloat(i.deliveryLabel.match(/([\d.]+)km/)?.[1] || 0),
+          total: i.total
+        }))
+      })
+    });
+  } catch (e) { /* ignore réseau */ }
 }
 
 function showConfirmation() {
   const container = document.getElementById('cart-content');
   container.innerHTML = `
-    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px; text-align:center; gap:20px;">
-      <div style="font-size:72px;">✅</div>
-      <div style="font-size:20px; font-weight:800; color:#fff;">Commande envoyée !</div>
-      <div style="font-size:14px; color:#8a9bb0; line-height:1.6;">
-        Merci pour ta commande 🎈<br>
-        Un membre de l'équipe te contactera<br>au plus vite pour gérer ça.
+    <div class="confirm-screen">
+      <div class="confirm-circle">
+        <svg viewBox="0 0 80 80" class="confirm-svg">
+          <circle cx="40" cy="40" r="36" fill="none" stroke="#f5c518" stroke-width="3" class="confirm-ring"/>
+          <polyline points="24,40 35,52 56,28" fill="none" stroke="#f5c518" stroke-width="4"
+            stroke-linecap="round" stroke-linejoin="round" class="confirm-check"/>
+        </svg>
       </div>
-      <div style="margin-top:8px; font-size:13px; color:#f5c518; font-weight:700;">🖤 CDL 59 — Les premiers. Les vrais.</div>
-      <button onclick="navigate('accueil')" style="
-        margin-top:16px;
-        background:#f5c518; color:#000;
-        border:none; border-radius:14px;
-        padding:15px 32px;
-        font-size:14px; font-weight:800;
-        cursor:pointer;
-      ">🔄 Repasser une commande</button>
+      <div class="confirm-title">Commande envoyée !</div>
+      <div class="confirm-msg">
+        Merci pour ta commande 🎈<br>
+        Un membre de l'équipe te contactera<br>au plus vite.
+      </div>
+      <div class="confirm-brand">🖤 CDL 59 — Les premiers. Les vrais.</div>
+      <button class="confirm-btn" onclick="navigate('accueil')">🔄 Repasser une commande</button>
     </div>
   `;
 }
