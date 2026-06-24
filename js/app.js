@@ -45,7 +45,8 @@ function navigate(screen) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('screen-' + screen).classList.add('active');
   document.getElementById('nav-' + screen).classList.add('active');
-  if (screen === 'accueil') setTimeout(launchConfetti, 200);
+  if (screen === 'accueil') startConfetti();
+  else stopConfetti();
 }
 
 // ── PRODUITS ──
@@ -502,7 +503,14 @@ function showToast(msg) {
 }
 
 // ── CONFETTIS ──
-function launchConfetti() {
+// ── CONFETTI INFINI EN ARRIERE-PLAN ──
+let confettiFrame = null;
+let confettiActive = false;
+
+function startConfetti() {
+  if (confettiActive) return;
+  confettiActive = true;
+
   const canvas = document.getElementById('confetti-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -510,23 +518,24 @@ function launchConfetti() {
   canvas.height = window.innerHeight;
 
   const colors = ['#f5c518', '#d4a017', '#fff8c0', '#ffe066', '#ffd700', '#ffffff'];
-  const pieces = Array.from({ length: 80 }, () => ({
+  const pieces = Array.from({ length: 60 }, () => ({
     x: Math.random() * canvas.width,
-    y: Math.random() * -canvas.height,
-    w: Math.random() * 8 + 4,
-    h: Math.random() * 14 + 6,
+    y: Math.random() * canvas.height,
+    w: Math.random() * 7 + 3,
+    h: Math.random() * 12 + 5,
     color: colors[Math.floor(Math.random() * colors.length)],
-    speed: Math.random() * 3 + 2,
+    speed: Math.random() * 1.5 + 0.5,
     angle: Math.random() * 360,
-    spin: (Math.random() - 0.5) * 6,
-    drift: (Math.random() - 0.5) * 1.5,
-    opacity: Math.random() * 0.5 + 0.5
+    spin: (Math.random() - 0.5) * 3,
+    drift: (Math.random() - 0.5) * 0.8,
+    opacity: Math.random() * 0.4 + 0.2
   }));
 
-  let frame;
-  let elapsed = 0;
-
   function draw() {
+    if (!confettiActive) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     pieces.forEach(p => {
       ctx.save();
@@ -539,17 +548,23 @@ function launchConfetti() {
       p.y += p.speed;
       p.x += p.drift;
       p.angle += p.spin;
-      if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width; }
+      if (p.y > canvas.height + 20) { p.y = -20; p.x = Math.random() * canvas.width; }
+      if (p.x < -20) p.x = canvas.width + 20;
+      if (p.x > canvas.width + 20) p.x = -20;
     });
-    elapsed++;
-    if (elapsed < 180) frame = requestAnimationFrame(draw);
-    else {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      cancelAnimationFrame(frame);
-    }
+    confettiFrame = requestAnimationFrame(draw);
   }
   draw();
 }
+
+function stopConfetti() {
+  confettiActive = false;
+  if (confettiFrame) { cancelAnimationFrame(confettiFrame); confettiFrame = null; }
+  const canvas = document.getElementById('confetti-canvas');
+  if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function launchConfetti() { startConfetti(); }
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
