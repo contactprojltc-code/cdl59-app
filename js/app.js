@@ -45,6 +45,7 @@ function navigate(screen) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('screen-' + screen).classList.add('active');
   document.getElementById('nav-' + screen).classList.add('active');
+  if (screen === 'accueil') setTimeout(launchConfetti, 200);
 }
 
 // ── PRODUITS ──
@@ -563,9 +564,3 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(launchConfetti, 400);
 });
 
-// Relance confettis quand on revient sur accueil
-const _origNavigate = navigate;
-function navigate(screen) {
-  _origNavigate(screen);
-  if (screen === 'accueil') setTimeout(launchConfetti, 200);
-}
