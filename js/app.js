@@ -360,6 +360,9 @@ function addToCart() {
 
   updateCartBadge();
   showToast('✅ Ajouté au panier !');
+  // Pop animation sur le badge panier
+  const badge = document.getElementById('cart-badge');
+  if (badge) { badge.classList.remove('pop'); void badge.offsetWidth; badge.classList.add('pop'); }
   selectedOption = null;
   deliveryPrice = 0;
   deliveryAddress = '';
@@ -497,6 +500,56 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
+// ── CONFETTIS ──
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ['#f5c518', '#d4a017', '#fff8c0', '#ffe066', '#ffd700', '#ffffff'];
+  const pieces = Array.from({ length: 80 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height,
+    w: Math.random() * 8 + 4,
+    h: Math.random() * 14 + 6,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    speed: Math.random() * 3 + 2,
+    angle: Math.random() * 360,
+    spin: (Math.random() - 0.5) * 6,
+    drift: (Math.random() - 0.5) * 1.5,
+    opacity: Math.random() * 0.5 + 0.5
+  }));
+
+  let frame;
+  let elapsed = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+      p.y += p.speed;
+      p.x += p.drift;
+      p.angle += p.spin;
+      if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width; }
+    });
+    elapsed++;
+    if (elapsed < 180) frame = requestAnimationFrame(draw);
+    else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      cancelAnimationFrame(frame);
+    }
+  }
+  draw();
+}
+
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
   if (window.Telegram?.WebApp) {
@@ -506,4 +559,13 @@ document.addEventListener('DOMContentLoaded', () => {
   renderProduct();
   renderCart();
   navigate('accueil');
+  // Confettis au chargement de l'accueil
+  setTimeout(launchConfetti, 400);
 });
+
+// Relance confettis quand on revient sur accueil
+const _origNavigate = navigate;
+function navigate(screen) {
+  _origNavigate(screen);
+  if (screen === 'accueil') setTimeout(launchConfetti, 200);
+}
