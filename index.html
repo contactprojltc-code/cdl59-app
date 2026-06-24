@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>CDL59 — Crème de Lux</title>
+  <!-- SDK Telegram : décommente uniquement pour prod dans Telegram -->
+  <!-- <script src="https://telegram.org/js/telegram-web-app.js"></script> -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ══════════════ ACCUEIL ══════════════ -->
+  <div id="screen-accueil" class="screen active">
+    <div class="home-hero">
+      <div class="home-hero-bg"></div>
+      <div class="home-logo">
+        <div class="home-logo-text">CDL</div>
+        <div class="home-logo-sub">Crème de Lux · 59</div>
+      </div>
+      <div class="home-tagline">Premium Cream Charger · Black Cobra</div>
+    </div>
+
+    <div class="home-info-strip">
+      <div class="info-pill">
+        <div class="pill-icon">⚡</div>
+        <div class="pill-label">Livraison<br>rapide</div>
+      </div>
+      <div class="info-pill">
+        <div class="pill-icon">💎</div>
+        <div class="pill-label">Qualité<br>premium</div>
+      </div>
+      <div class="info-pill">
+        <div class="pill-icon">🔒</div>
+        <div class="pill-label">100%<br>discret</div>
+      </div>
+    </div>
+
+    <div style="padding: 0 16px 8px;">
+      <div class="section-title" style="font-size:16px;">Nos produits</div>
+    </div>
+
+    <div class="home-products-grid">
+      <div class="home-product-card" onclick="navigate('produits'); selectProduct('tank')">
+        <img src="images/tank.png" alt="TANK Black Cobra" onerror="this.style.display='none'">
+        <div class="card-name">TANK Black Cobra</div>
+        <div class="card-price">2000g · CDL</div>
+      </div>
+      <div class="home-product-card" onclick="navigate('produits'); selectProduct('bonbonne')">
+        <img src="images/bonbonne.png" alt="Bonbonne Black Cobra" onerror="this.style.display='none'">
+        <div class="card-name">Bonbonne Black Cobra</div>
+        <div class="card-price">666g · CDL</div>
+      </div>
+    </div>
+
+    <button class="home-cta" onclick="navigate('produits')">COMMANDER MAINTENANT</button>
+  </div>
+
+  <!-- ══════════════ PRODUITS ══════════════ -->
+  <div id="screen-produits" class="screen">
+    <div class="products-header">
+      <h2>Nos Produits</h2>
+      <p>Sélectionne ton produit et ta quantité</p>
+    </div>
+
+    <div class="product-tabs">
+      <button class="tab-btn active" data-product="tank" onclick="selectProduct('tank')">🟡 TANK 2000g</button>
+      <button class="tab-btn" data-product="bonbonne" onclick="selectProduct('bonbonne')">⚫ Bonbonne 666g</button>
+    </div>
+
+    <div class="product-detail" id="product-detail"></div>
+  </div>
+
+  <!-- ══════════════ RÉSEAUX ══════════════ -->
+  <div id="screen-reseaux" class="screen">
+    <div class="reseaux-header">
+      <h2>🌐 Nos Réseaux</h2>
+      <p>Suis-nous et contacte-nous directement</p>
+    </div>
+
+    <div class="reseaux-list">
+
+      <a class="reseau-card" href="https://snapchat.com/add/cdl59" target="_blank">
+        <div class="reseau-logo" style="background: rgba(255,252,0,0.1);">👻</div>
+        <div class="reseau-info">
+          <div class="reseau-name">Snapchat</div>
+          <div class="reseau-handle">cdl59</div>
+        </div>
+        <div class="reseau-arrow">›</div>
+      </a>
+
+      <div class="reseau-card" style="cursor:default; opacity:0.7;">
+        <div class="reseau-logo" style="background: rgba(245,197,24,0.12);">📍</div>
+        <div class="reseau-info">
+          <div class="reseau-name">Localisation</div>
+          <div class="reseau-handle">Lille</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════ PANIER ══════════════ -->
+  <div id="screen-panier" class="screen">
+    <div class="cart-header">
+      <h2>🛒 Mon Panier</h2>
+      <span class="cart-clear" onclick="clearCart()">Vider</span>
+    </div>
+    <div id="cart-content"></div>
+  </div>
+
+  <!-- ══════════════ NAV BAR ══════════════ -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="nav-accueil" onclick="navigate('accueil')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Accueil</span>
+    </div>
+    <div class="nav-item" id="nav-produits" onclick="navigate('produits')">
+      <span class="nav-icon">🛍️</span>
+      <span class="nav-label">Produits</span>
+    </div>
+    <div class="nav-item" id="nav-reseaux" onclick="navigate('reseaux')">
+      <span class="nav-icon">🌐</span>
+      <span class="nav-label">Réseaux</span>
+    </div>
+    <div class="nav-item" id="nav-panier" onclick="navigate('panier'); renderCart()" style="position:relative;">
+      <span class="nav-icon">🛒</span>
+      <span class="nav-label">Panier</span>
+      <div class="cart-badge" id="cart-badge">0</div>
+    </div>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/app.js?v=2"></script>
+</body>
+</html>
