@@ -445,17 +445,35 @@ function sendOrder() {
 
   if (window.Telegram?.WebApp) {
     window.Telegram.WebApp.sendData(JSON.stringify(payload));
-  } else {
-    // Preview hors Telegram — affichage du récap
-    const lines = cart.map(i => {
-      if (i.delivery === 'surplace') {
-        return `🎈 ${i.name}\n📦 ${i.option}\n📍 Retrait sur place Lille\n💰 Total : ${i.total}€`;
-      } else {
-        return `🎈 ${i.name}\n📦 ${i.option}\n📍 ${i.deliveryAddress}\n🚗 Livraison : ${i.deliveryPrice}€\n💳 Total : ${i.total}€`;
-      }
-    }).join('\n\n');
-    alert(`🛒 COMMANDE CDL59\n\n${lines}\n\n💳 Total commande : ${total}€`);
   }
+
+  // Vider le panier et afficher confirmation
+  cart.length = 0;
+  updateCartBadge();
+  showConfirmation();
+}
+
+function showConfirmation() {
+  const container = document.getElementById('cart-content');
+  container.innerHTML = `
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px; text-align:center; gap:20px;">
+      <div style="font-size:72px;">✅</div>
+      <div style="font-size:20px; font-weight:800; color:#fff;">Commande envoyée !</div>
+      <div style="font-size:14px; color:#8a9bb0; line-height:1.6;">
+        Merci pour ta commande 🎈<br>
+        Un membre de l'équipe te contactera<br>au plus vite pour gérer ça.
+      </div>
+      <div style="margin-top:8px; font-size:13px; color:#f5c518; font-weight:700;">🖤 CDL 59 — Les premiers. Les vrais.</div>
+      <button onclick="navigate('accueil')" style="
+        margin-top:16px;
+        background:#f5c518; color:#000;
+        border:none; border-radius:14px;
+        padding:15px 32px;
+        font-size:14px; font-weight:800;
+        cursor:pointer;
+      ">🔄 Repasser une commande</button>
+    </div>
+  `;
 }
 
 // ── TOAST ──
