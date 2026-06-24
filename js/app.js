@@ -7,8 +7,11 @@ let deliveryPrice = 0;
 let deliveryAddress = '';
 let deliveryDistanceKm = 0;
 
-const ORIGIN = [50.6292, 3.0573]; // Porte d'Arras, Lille
+const ORIGIN = [50.6292, 3.0573];
 const PRICE_PER_KM = 0.75;
+const BOT_TOKEN = '8974607961:AAGfBjUN88qBACrSKmseireIHG4m2FGsXE8';
+const GROUP_SURPLACE = -1004408580478;
+const GROUP_LIVRAISON = -1004376864564;
 
 const PRODUCTS = {
   tank: {
@@ -425,34 +428,58 @@ function renderCart() {
   `;
 }
 
-function sendOrder() {
+async function sendOrder() {
   if (cart.length === 0) return;
-  const total = cart.reduce((s, i) => s + i.total, 0);
 
-  const payload = {
-    order: cart.map(i => ({
-      name: i.name,
-      option: i.option,
-      price: i.price,
-      delivery: i.delivery,
-      deliveryPrice: i.deliveryPrice,
-      deliveryAddress: i.deliveryAddress,
-      distanceKm: i.delivery === 'livraison' ? parseFloat(i.deliveryLabel.match(/([\d.]+)km/)?.[1] || 0) : 0,
-      total: i.total
-    })),
-    total
-  };
+  // Récupérer infos utilisateur Telegram si dispo
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  const username = tgUser
+    ? (tgUser.username ? `@${tgUser.username}` : `${tgUser.first_name} (ID: ${tgUser.id})`)
+    : 'Client web';
 
-  // Vider le panier et afficher confirmation EN PREMIER
+  // Afficher confirmation et vider panier immédiatement
+  const orderSnapshot = [...cart];
   cart.length = 0;
   updateCartBadge();
   showConfirmation();
 
-  // Envoyer les données au bot après que l'écran de confirmation soit affiché
-  if (window.Telegram?.WebApp) {
-    setTimeout(() => {
-      try { window.Telegram.WebApp.sendData(JSON.stringify(payload)); } catch(e) {}
-    }, 1500);
+  // Envoyer chaque article dans le bon groupe via l'API bot
+  for (const item of orderSnapshot) {
+    let msg, groupId;
+
+    if (item.delivery === 'surplace') {
+      msg =
+        `🛒 NOUVELLE COMMANDE — SUR PLACE\n\n` +
+        `👤 Client : ${username}\n` +
+        `🎈 Produit : ${item.name}\n` +
+        `📦 Quantité : ${item.option}\n` +
+        `📍 Retrait : Sur place Lille\n` +
+        `💰 Total : ${item.total}€\n\n` +
+        `📞 À contacter sur Telegram : ${username}`;
+      groupId = GROUP_SURPLACE;
+    } else {
+      const distKm = parseFloat(item.deliveryLabel.match(/([\d.]+)km/)?.[1] || 0);
+      msg =
+        `🛒 NOUVELLE COMMANDE — LIVRAISON\n\n` +
+        `👤 Client : ${username}\n` +
+        `🎈 Produit : ${item.name}\n` +
+        `📦 Quantité : ${item.option}\n` +
+        `📍 Adresse : ${item.deliveryAddress}\n` +
+        `📏 Distance : ${distKm.toFixed(1)} km\n` +
+        `🚗 Frais livraison : ${item.deliveryPrice}€\n` +
+        `💰 Produit : ${item.price}€\n` +
+        `💳 Total : ${item.total}€\n\n` +
+        `📞 À contacter sur Telegram : ${username}`;
+      groupId = GROUP_LIVRAISON;
+    }
+
+    try {
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: groupId, text: msg })
+      });
+    } catch (e) { /* ignore réseau */ }
   }
 }
 
