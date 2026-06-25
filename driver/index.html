@@ -8,271 +8,303 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
 :root{
   --bg:#05080f;--surface:#0b0f1a;--card:#0f1624;--card2:#141d2e;
-  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.12);
-  --y:#f5c518;--yd:rgba(245,197,24,.1);--yb:rgba(245,197,24,.18);
-  --g:#10b981;--gd:rgba(16,185,129,.1);
-  --r:#ef4444;--rd:rgba(239,68,68,.08);
+  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.14);
+  --y:#f5c518;--yd:rgba(245,197,24,.12);--yb:rgba(245,197,24,.2);
+  --g:#10b981;--gd:rgba(16,185,129,.12);--gb:rgba(16,185,129,.22);
+  --r:#ef4444;--rd:rgba(239,68,68,.1);
+  --b:#3b82f6;--bd:rgba(59,130,246,.1);
   --t:#f1f5f9;--tm:#94a3b8;--ts:#475569;
   --rad:14px;--rad-sm:10px;
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;}
-input,button{font-family:inherit;cursor:pointer;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;overflow-x:hidden;}
+input,button{font-family:inherit;}
+button{cursor:pointer;}
 
 /* ── LOGIN ── */
 #login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:999;padding:20px;}
-.login-card{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:40px 28px;width:100%;max-width:340px;position:relative;overflow:hidden;}
-.login-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,197,24,.03),transparent);pointer-events:none;}
-.login-icon{width:52px;height:52px;background:var(--yd);border:1px solid rgba(245,197,24,.2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px;}
-.login-title{text-align:center;font-size:19px;font-weight:800;margin-bottom:3px;}
-.login-sub{text-align:center;font-size:13px;color:var(--tm);margin-bottom:24px;}
-.field label{display:block;font-size:12px;color:var(--tm);margin-bottom:5px;font-weight:600;}
-.field input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--t);font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;text-align:center;outline:none;transition:border .2s;margin-bottom:12px;}
-.field input:focus{border-color:var(--y);}
-.btn-primary{width:100%;background:var(--y);color:#000;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;}
+.login-card{background:var(--card);border:1px solid var(--border2);border-radius:22px;padding:40px 28px;width:100%;max-width:340px;position:relative;overflow:hidden;}
+.login-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,197,24,.04),transparent 60%);pointer-events:none;}
+.login-glow{position:fixed;width:400px;height:400px;background:radial-gradient(circle,rgba(245,197,24,.06),transparent 70%);top:40%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+.login-icon{width:56px;height:56px;background:var(--yd);border:1px solid rgba(245,197,24,.25);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px;}
+.login-title{text-align:center;font-size:20px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px;}
+.login-sub{text-align:center;font-size:13px;color:var(--tm);margin-bottom:28px;}
+.field label{display:block;font-size:11px;color:var(--tm);font-weight:600;margin-bottom:6px;letter-spacing:.3px;}
+.code-input{width:100%;background:var(--card2);border:2px solid var(--border);border-radius:12px;padding:14px;color:var(--y);font-size:22px;font-weight:900;letter-spacing:6px;text-transform:uppercase;text-align:center;outline:none;transition:border .2s;margin-bottom:14px;font-family:ui-monospace,monospace;}
+.code-input:focus{border-color:rgba(245,197,24,.5);}
+.btn-primary{width:100%;background:var(--y);color:#000;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:800;letter-spacing:.3px;transition:opacity .15s;}
+.btn-primary:hover{opacity:.9;}
 .login-err{color:var(--r);font-size:12px;text-align:center;margin-top:10px;display:none;}
 
-/* ── APP ── */
-#app{display:none;min-height:100vh;padding-bottom:80px;}
-.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-.header-info{display:flex;flex-direction:column;}
-.header-name{font-size:15px;font-weight:800;}
-.header-vehicle{font-size:12px;color:var(--tm);}
-.header-logout{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--tm);}
+/* ── HEADER ── */
+#app{display:none;padding-bottom:72px;}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:60;}
+.header-left{display:flex;align-items:center;gap:10px;}
+.header-avatar{width:36px;height:36px;background:var(--yd);border:1px solid rgba(245,197,24,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.header-name{font-size:14px;font-weight:800;}
+.header-vehicle{font-size:11px;color:var(--tm);}
+.header-logout{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--ts);transition:all .15s;}
+.header-logout:hover{border-color:var(--r);color:var(--r);}
 
 /* ── BOTTOM NAV ── */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:50;}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;font-size:10px;color:var(--ts);font-weight:600;transition:color .15s;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:60;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 4px;font-size:10px;font-weight:600;color:var(--ts);transition:color .15s;position:relative;}
 .nav-item.active{color:var(--y);}
 .nav-item .icon{font-size:20px;margin-bottom:2px;}
+.nav-badge{position:absolute;top:6px;right:calc(50% - 18px);background:var(--y);color:#000;font-size:9px;font-weight:900;border-radius:999px;padding:1px 5px;min-width:16px;text-align:center;}
 
-/* ── CONTENT ── */
-.page{display:none;padding:16px;}
+/* ── PAGES ── */
+.page{display:none;}
 .page.active{display:block;}
 
-/* ── STATS CARDS ── */
-.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:14px 16px;position:relative;overflow:hidden;}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-.stat-card.yellow::before{background:var(--y);}
-.stat-card.green::before{background:var(--g);}
-.stat-card.blue::before{background:#3b82f6;}
-.stat-card.red::before{background:var(--r);}
-.stat-val{font-size:22px;font-weight:800;margin-bottom:2px;}
-.stat-lbl{font-size:11px;color:var(--tm);}
-.stat-sub{font-size:11px;color:var(--ts);margin-top:3px;}
+/* ── CALENDAR ── */
+.cal-wrap{padding:14px 14px 0;}
+.cal-nav{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.cal-nav-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--tm);flex-shrink:0;transition:all .15s;}
+.cal-nav-btn:hover{border-color:var(--border2);color:var(--t);}
+.cal-week-label{font-size:13px;font-weight:700;flex:1;text-align:center;color:var(--tm);}
+.cal-grid-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;}
+.cal-header{display:grid;grid-template-columns:38px repeat(7,1fr);border-bottom:1px solid var(--border);}
+.cal-hcell{padding:8px 3px;text-align:center;}
+.cal-hcell-day{font-size:9px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.3px;}
+.cal-hcell-num{font-size:16px;font-weight:800;margin-top:2px;color:var(--tm);}
+.cal-hcell.today .cal-hcell-num{color:var(--y);}
+.cal-hcell.today .cal-hcell-day{color:var(--y);}
+.cal-scroll{overflow-y:auto;max-height:calc(100vh - 280px);}
+.cal-body{display:grid;grid-template-columns:38px repeat(7,1fr);position:relative;}
+.cal-time-col{border-right:1px solid var(--border);}
+.cal-time-cell{height:52px;display:flex;align-items:flex-start;justify-content:flex-end;padding:3px 5px 0 0;font-size:9px;color:var(--ts);}
+.cal-day-col{border-right:1px solid var(--border);position:relative;}
+.cal-day-col:last-child{border-right:none;}
+.cal-hour-row{height:52px;border-bottom:1px solid rgba(255,255,255,.025);}
+.cal-event{position:absolute;left:2px;right:2px;border-radius:7px;padding:3px 6px;font-size:10px;font-weight:700;cursor:pointer;z-index:2;overflow:hidden;transition:all .15s;border-left:3px solid;}
+.cal-event:hover{filter:brightness(1.1);}
+.cal-event.available{background:rgba(245,197,24,.14);border-color:var(--y);color:var(--y);}
+.cal-event.mine{background:rgba(16,185,129,.18);border-color:var(--g);color:var(--g);}
+.cal-event.taken{background:rgba(71,85,105,.15);border-color:var(--ts);color:var(--ts);}
+.cal-event.delivered{background:rgba(30,40,60,.4);border-color:rgba(71,85,105,.3);color:var(--ts);opacity:.6;}
+.cal-event-time{font-size:9px;opacity:.8;font-weight:600;}
+.cal-event-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;}
 
-/* ── SECTION ── */
-.section-title{font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
-
-/* ── DELIVERY CARDS ── */
-.delivery-list{display:flex;flex-direction:column;gap:8px;}
-.delivery-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;transition:border .15s;}
-.delivery-card:hover{border-color:var(--border2);}
-.delivery-card.taken{border-color:rgba(16,185,129,.3);}
-.delivery-card.mine{border-color:rgba(245,197,24,.25);}
-.delivery-card.delivered{opacity:.5;}
-.delivery-head{padding:14px;}
-.delivery-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.delivery-client{font-size:15px;font-weight:800;}
-.delivery-time{font-size:13px;font-weight:700;color:var(--y);background:var(--yd);padding:3px 10px;border-radius:999px;}
-.delivery-product{font-size:13px;color:var(--tm);margin-bottom:4px;}
-.delivery-address{font-size:13px;color:var(--t);display:flex;align-items:flex-start;gap:5px;}
-.delivery-address .pin{color:var(--r);flex-shrink:0;}
-.delivery-meta{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.delivery-tag{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:600;}
-.tag-km{background:rgba(59,130,246,.1);color:#60a5fa;}
+/* ── SHEET (bottom sheet pour détail event) ── */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;backdrop-filter:blur(4px);}
+.sheet-overlay.open{display:block;}
+.sheet{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom);z-index:101;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.sheet.open{transform:translateY(0);}
+.sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:999px;margin:12px auto 16px;}
+.sheet-head{padding:0 20px 16px;border-bottom:1px solid var(--border);}
+.sheet-title{font-size:17px;font-weight:800;margin-bottom:4px;}
+.sheet-client{font-size:14px;color:var(--y);font-weight:700;}
+.sheet-body{padding:16px 20px;}
+.sheet-field{margin-bottom:12px;}
+.sheet-field label{font-size:11px;color:var(--ts);display:block;margin-bottom:3px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.sheet-field span{font-size:14px;font-weight:600;}
+.sheet-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.sheet-tag{font-size:11px;font-weight:700;border-radius:999px;padding:4px 12px;}
+.tag-km{background:var(--bd);color:var(--b);}
 .tag-price{background:var(--yd);color:var(--y);}
-.tag-taken{background:var(--gd);color:var(--g);}
-.tag-mine{background:var(--yb);color:var(--y);}
-.delivery-actions{padding:0 14px 14px;display:flex;gap:8px;}
-.btn-take{flex:1;background:var(--y);border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:700;color:#000;}
-.btn-done{flex:1;background:var(--gd);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:11px;font-size:13px;font-weight:700;color:var(--g);}
-.btn-taken-label{flex:1;background:var(--gd);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:13px;font-weight:600;color:var(--g);text-align:center;cursor:default;}
+.tag-mine{background:var(--gd);color:var(--g);}
+.tag-taken{background:rgba(71,85,105,.2);color:var(--ts);}
+.sheet-action{padding:0 20px 16px;}
+.btn-take{width:100%;background:var(--y);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;color:#000;letter-spacing:.2px;}
+.btn-livré{width:100%;background:var(--g);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;color:#fff;letter-spacing:.2px;}
+.btn-taken-lbl{width:100%;background:var(--gd);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:14px;font-size:14px;font-weight:700;color:var(--g);text-align:center;}
+.btn-done-lbl{width:100%;background:rgba(71,85,105,.15);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:14px;color:var(--ts);text-align:center;}
 
-/* ── FINANCE BREAKDOWN ── */
-.finance-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:16px;margin-bottom:12px;}
-.finance-title{font-size:12px;font-weight:700;color:var(--ts);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;}
-.finance-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
-.finance-row:last-child{border-bottom:none;font-weight:700;font-size:14px;}
-.finance-val{font-weight:700;}
-.val-green{color:var(--g);}
-.val-yellow{color:var(--y);}
-.val-red{color:var(--r);}
+/* ── MES LIVRAISONS ── */
+.mes-wrap{padding:14px;}
+.section-lbl{font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+.delivery-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;margin-bottom:8px;transition:border .15s;}
+.delivery-card:hover{border-color:var(--border2);}
+.delivery-card.delivered{opacity:.5;}
+.delivery-head{padding:14px 14px 0;cursor:pointer;}
+.delivery-head-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.delivery-client{font-size:15px;font-weight:800;}
+.delivery-time-pill{background:var(--yd);color:var(--y);font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;}
+.delivery-product{font-size:13px;color:var(--tm);margin-bottom:4px;}
+.delivery-addr{font-size:13px;color:var(--t);display:flex;gap:5px;align-items:flex-start;}
+.delivery-tags{display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px 0;}
+.delivery-expand{border:none;background:none;color:var(--ts);font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:4px;width:100%;justify-content:center;border-top:1px solid var(--border);margin-top:10px;}
+.delivery-detail{display:none;padding:14px;border-top:1px solid var(--border);background:var(--card2);}
+.delivery-detail.open{display:block;}
+.detail-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);}
+.detail-row:last-child{border-bottom:none;}
+.detail-val{font-weight:700;color:var(--y);}
+.btn-livré-card{width:100%;background:var(--g);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:800;color:#fff;margin-top:12px;}
+.detail-done{width:100%;background:rgba(71,85,105,.15);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:13px;color:var(--ts);margin-top:12px;text-align:center;}
 
-/* ── CALENDAR AGENDA ── */
-.cal-nav{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.cal-nav-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--tm);}
-.cal-week-label{font-size:14px;font-weight:700;flex:1;text-align:center;}
-.cal-days-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px;}
-.cal-day-pill{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;cursor:pointer;transition:all .15s;}
-.cal-day-pill.active{background:var(--yd);border-color:rgba(245,197,24,.3);}
-.cal-day-pill.has-delivery{border-color:rgba(245,197,24,.2);}
-.cal-day-name{font-size:10px;color:var(--ts);font-weight:600;}
-.cal-day-num{font-size:16px;font-weight:800;margin-top:2px;}
-.cal-day-dot{width:5px;height:5px;border-radius:50%;background:var(--y);margin:3px auto 0;}
-.cal-day-pill.active .cal-day-name{color:var(--y);}
-.cal-day-pill.active .cal-day-num{color:var(--y);}
+/* ── STATS ── */
+.stats-wrap{padding:14px;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:14px 16px;overflow:hidden;position:relative;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.y::before{background:var(--y);}
+.stat-card.g::before{background:var(--g);}
+.stat-card.b::before{background:var(--b);}
+.stat-card.r::before{background:var(--r);}
+.stat-val{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px;}
+.stat-lbl{font-size:11px;color:var(--tm);}
+.stat-sub{font-size:10px;color:var(--ts);margin-top:2px;}
+.finance-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:16px;margin-bottom:14px;}
+.finance-title{font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
+.finance-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.finance-row:last-child{border-bottom:none;font-weight:800;font-size:14px;}
+.fval{font-weight:700;}
+.fval.g{color:var(--g);}
+.fval.y{color:var(--y);}
+.fval.r{color:var(--r);}
 .empty{text-align:center;padding:40px 20px;color:var(--ts);font-size:13px;}
 </style>
 </head>
 <body>
 
-<!-- ── LOGIN ── -->
+<!-- LOGIN -->
 <div id="login">
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(245,197,24,.05),transparent 60%);pointer-events:none;"></div>
+  <div class="login-glow"></div>
   <div class="login-card">
     <div class="login-icon">🏍️</div>
     <div class="login-title">Portail Livreur</div>
     <div class="login-sub">CDL59 — Espace livraison</div>
     <div class="field">
       <label>Ton code d'accès</label>
-      <input id="code-inp" type="text" placeholder="CDL-XXXX" maxlength="8"
+      <input id="code-inp" class="code-input" type="text" placeholder="CDL-XXXX" maxlength="8"
         oninput="this.value=this.value.toUpperCase()"
-        onkeydown="if(event.key==='Enter')tryDriverLogin()">
+        onkeydown="if(event.key==='Enter')tryLogin()">
     </div>
-    <button class="btn-primary" onclick="tryDriverLogin()">Accéder →</button>
-    <div id="login-err" class="login-err">Code invalide. Vérifie auprès de l'admin.</div>
+    <button class="btn-primary" onclick="tryLogin()">Accéder →</button>
+    <div id="login-err" class="login-err">Code invalide. Contacte l'admin.</div>
   </div>
 </div>
 
-<!-- ── APP ── -->
+<!-- APP -->
 <div id="app">
   <div class="header">
-    <div class="header-info">
-      <div class="header-name" id="h-name">—</div>
-      <div class="header-vehicle" id="h-vehicle">—</div>
+    <div class="header-left">
+      <div class="header-avatar" id="h-icon">🛵</div>
+      <div><div class="header-name" id="h-name">—</div><div class="header-vehicle" id="h-vehicle">—</div></div>
     </div>
     <button class="header-logout" onclick="logout()">Déconnexion</button>
   </div>
 
-  <!-- Page Agenda -->
+  <!-- AGENDA PAGE -->
   <div id="page-agenda" class="page active">
-    <div class="cal-nav" style="margin-top:16px;">
-      <button class="cal-nav-btn" onclick="prevWeek()">‹</button>
-      <span class="cal-week-label" id="week-lbl"></span>
-      <button class="cal-nav-btn" onclick="nextWeek()">›</button>
-    </div>
-    <div class="cal-days-strip" id="days-strip"></div>
-    <div class="section-title" id="agenda-day-title">Livraisons</div>
-    <div class="delivery-list" id="agenda-list"></div>
-  </div>
-
-  <!-- Page Mes Livraisons -->
-  <div id="page-mes" class="page">
-    <div style="padding-top:16px;">
-      <div class="section-title">Mes livraisons assignées</div>
-      <div class="delivery-list" id="mes-list"></div>
-    </div>
-  </div>
-
-  <!-- Page Stats -->
-  <div id="page-stats" class="page">
-    <div style="padding-top:16px;">
-      <div class="stats-row">
-        <div class="stat-card yellow">
-          <div class="stat-val" id="s-count">—</div>
-          <div class="stat-lbl">Livraisons</div>
-        </div>
-        <div class="stat-card blue">
-          <div class="stat-val" id="s-dist">—</div>
-          <div class="stat-lbl">km total</div>
-        </div>
-        <div class="stat-card green">
-          <div class="stat-val" id="s-net">—</div>
-          <div class="stat-lbl">Bénéfice net</div>
-          <div class="stat-sub">Après essence</div>
-        </div>
-        <div class="stat-card red">
-          <div class="stat-val" id="s-owed">—</div>
-          <div class="stat-lbl">À reverser</div>
-          <div class="stat-sub">Au shop</div>
+    <div class="cal-wrap">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="prevWeek()">‹</button>
+        <span class="cal-week-label" id="week-lbl"></span>
+        <button class="cal-nav-btn" onclick="nextWeek()">›</button>
+        <button style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--tm);" onclick="goToday()">Auj.</button>
+      </div>
+      <div class="cal-grid-wrap">
+        <div class="cal-header" id="cal-header"></div>
+        <div class="cal-scroll">
+          <div class="cal-body">
+            <div class="cal-time-col" id="cal-times"></div>
+            <div id="cal-days" style="display:contents;"></div>
+          </div>
         </div>
       </div>
+      <!-- Légende -->
+      <div style="display:flex;gap:10px;padding:10px 4px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tm);"><div style="width:10px;height:10px;background:rgba(245,197,24,.3);border-left:3px solid var(--y);border-radius:2px;"></div>Disponible</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tm);"><div style="width:10px;height:10px;background:rgba(16,185,129,.3);border-left:3px solid var(--g);border-radius:2px;"></div>Ma livraison</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tm);"><div style="width:10px;height:10px;background:rgba(71,85,105,.2);border-left:3px solid var(--ts);border-radius:2px;"></div>Pris</div>
+      </div>
+    </div>
+  </div>
 
+  <!-- MES LIVRAISONS PAGE -->
+  <div id="page-mes" class="page">
+    <div class="mes-wrap" style="padding-top:14px;">
+      <div class="section-lbl" id="mes-count">Mes livraisons</div>
+      <div id="mes-list"><div class="empty">Chargement…</div></div>
+    </div>
+  </div>
+
+  <!-- STATS PAGE -->
+  <div id="page-stats" class="page">
+    <div class="stats-wrap" style="padding-top:14px;">
+      <div class="stats-grid">
+        <div class="stat-card y"><div class="stat-val" id="s-count">—</div><div class="stat-lbl">Livraisons</div></div>
+        <div class="stat-card b"><div class="stat-val" id="s-dist">—</div><div class="stat-lbl">Kilomètres</div></div>
+        <div class="stat-card g"><div class="stat-val" id="s-net">—</div><div class="stat-lbl">Bénéfice net</div><div class="stat-sub">Essence déduite</div></div>
+        <div class="stat-card r"><div class="stat-val" id="s-owed">—</div><div class="stat-lbl">À reverser</div><div class="stat-sub">Au shop</div></div>
+      </div>
       <div class="finance-card">
         <div class="finance-title">Détail financier</div>
-        <div class="finance-row"><span>💰 Revenus livraisons</span><span class="finance-val val-yellow" id="f-rev">—</span></div>
-        <div class="finance-row"><span>📏 Distance totale</span><span class="finance-val" id="f-dist">—</span></div>
-        <div class="finance-row"><span>⛽ Coût essence (1,98€/L)</span><span class="finance-val val-red" id="f-fuel">—</span></div>
-        <div class="finance-row"><span>🏆 Bénéfice net</span><span class="finance-val val-green" id="f-net">—</span></div>
-        <div class="finance-row"><span>🏪 Montant à reverser</span><span class="finance-val val-red" id="f-owed">—</span></div>
+        <div class="finance-row"><span>💰 Revenus livraisons</span><span class="fval y" id="f-rev">—</span></div>
+        <div class="finance-row"><span>📏 Distance totale</span><span class="fval" id="f-dist">—</span></div>
+        <div class="finance-row"><span>⛽ Coût essence (1,98€/L)</span><span class="fval r" id="f-fuel">—</span></div>
+        <div class="finance-row"><span>🏆 Bénéfice net</span><span class="fval g" id="f-net">—</span></div>
+        <div class="finance-row"><span>🏪 Montant à reverser au shop</span><span class="fval r" id="f-owed">—</span></div>
       </div>
-
-      <div class="section-title">Mes livraisons</div>
-      <div class="delivery-list" id="stats-list"></div>
     </div>
   </div>
 
-  <!-- Bottom Nav -->
+  <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-    <div class="nav-item active" id="nav-agenda" onclick="switchPage('agenda')">
-      <span class="icon">📅</span>Agenda
-    </div>
-    <div class="nav-item" id="nav-mes" onclick="switchPage('mes')">
-      <span class="icon">🏍️</span>Mes livraisons
-    </div>
-    <div class="nav-item" id="nav-stats" onclick="switchPage('stats')">
-      <span class="icon">📊</span>Mes stats
-    </div>
+    <div class="nav-item active" id="nav-agenda" onclick="switchPage('agenda')"><span class="icon">📅</span>Agenda</div>
+    <div class="nav-item" id="nav-mes" onclick="switchPage('mes')"><span class="icon">🏍️</span>Mes livraisons<span class="nav-badge" id="mes-badge" style="display:none">0</span></div>
+    <div class="nav-item" id="nav-stats" onclick="switchPage('stats')"><span class="icon">📊</span>Mes stats</div>
   </nav>
+</div>
+
+<!-- SHEET (bottom sheet détail livraison) -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <div class="sheet-title" id="sh-title">Livraison</div>
+    <div class="sheet-client" id="sh-client"></div>
+  </div>
+  <div class="sheet-body">
+    <div class="sheet-field"><label>Produit</label><span id="sh-product"></span></div>
+    <div class="sheet-field"><label>Adresse</label><span id="sh-address"></span></div>
+    <div class="sheet-field" id="sh-notes-wrap" style="display:none"><label>Notes</label><span id="sh-notes"></span></div>
+    <div class="sheet-tags" id="sh-tags"></div>
+  </div>
+  <div class="sheet-action" id="sh-action"></div>
 </div>
 
 <script>
 const API = 'https://cdl59-bot-production.up.railway.app';
-let driverCode = '';
-let driverInfo = {};
-let weekOffset = 0;
-let selectedDate = new Date().toISOString().slice(0,10);
+let driverCode = '', driverInfo = {}, weekOffset = 0;
+let currentSlot = null;
+const HOURS = Array.from({length:15},(_,i)=>i+8); // 8h→22h
+const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 
 // ─── LOGIN ────────────────────────────────────────────────────────────────────
-async function tryDriverLogin() {
+async function tryLogin() {
   const code = document.getElementById('code-inp').value.trim().toUpperCase();
   if (!code) return;
-  try {
-    const r = await fetch(`${API}/driver/auth`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({code})
-    });
-    if (r.ok) {
-      const data = await r.json();
-      driverCode = code;
-      driverInfo = data.driver;
-      sessionStorage.setItem('cdl_driver_code', code);
-      initDriver();
-    } else {
-      showErr();
-    }
-  } catch(e) { showErr(); }
-}
-
-function showErr() {
-  const e = document.getElementById('login-err');
-  e.style.display = 'block';
-}
-
-function logout() {
-  sessionStorage.removeItem('cdl_driver_code');
-  location.reload();
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const saved = sessionStorage.getItem('cdl_driver_code');
-  if (saved) {
-    document.getElementById('code-inp').value = saved;
-    tryDriverLogin();
+  const r = await fetch(`${API}/driver/auth`, {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code})
+  }).catch(()=>null);
+  if (r?.ok) {
+    const d = await r.json();
+    driverCode = code; driverInfo = d.driver;
+    sessionStorage.setItem('cdl_dc', code);
+    initDriver();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
   }
+}
+function logout() { sessionStorage.removeItem('cdl_dc'); location.reload(); }
+window.addEventListener('DOMContentLoaded', () => {
+  const s = sessionStorage.getItem('cdl_dc');
+  if (s) { document.getElementById('code-inp').value=s; tryLogin(); }
 });
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-function vehicleIcon(v) { return v==='velo'?'🚴':v==='voiture'?'🚗':'🛵'; }
-function vehicleLabel(v) { return v==='velo'?'Vélo':v==='voiture'?'Voiture':'Scooter'; }
+const vIcon  = v => v==='velo'?'🚴':v==='voiture'?'🚗':'🛵';
+const vLabel = v => v==='velo'?'Vélo':v==='voiture'?'Voiture':'Scooter';
 
 function initDriver() {
   document.getElementById('login').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  document.getElementById('h-name').textContent = vehicleIcon(driverInfo.vehicle) + ' ' + driverInfo.name;
-  document.getElementById('h-vehicle').textContent = vehicleLabel(driverInfo.vehicle) + ' · ' + driverInfo.consumption + 'L/100';
-  buildWeek();
+  document.getElementById('h-icon').textContent    = vIcon(driverInfo.vehicle);
+  document.getElementById('h-name').textContent    = driverInfo.name;
+  document.getElementById('h-vehicle').textContent = `${vLabel(driverInfo.vehicle)} · ${driverInfo.consumption}L/100`;
+  buildCalendar();
   loadStats();
 }
 
@@ -282,156 +314,159 @@ function switchPage(p) {
     document.getElementById('page-'+n).classList.toggle('active', n===p);
     document.getElementById('nav-'+n).classList.toggle('active', n===p);
   });
-  if (p==='mes') loadMes();
+  if (p==='mes')   loadMes();
   if (p==='stats') loadStats();
 }
 
-// ─── DATES ────────────────────────────────────────────────────────────────────
-const DAYS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+// ─── UTILS ────────────────────────────────────────────────────────────────────
 function todayStr() { return new Date().toISOString().slice(0,10); }
-
 function getWeekDates() {
-  const d = new Date(); d.setDate(d.getDate() + weekOffset*7);
-  const day = d.getDay(); const diff = day===0?-6:1-day;
+  const d = new Date(); d.setDate(d.getDate()+weekOffset*7);
+  const day = d.getDay(), diff = day===0?-6:1-day;
   const mon = new Date(d); mon.setDate(d.getDate()+diff);
   return Array.from({length:7},(_,i)=>{ const x=new Date(mon); x.setDate(mon.getDate()+i); return x; });
 }
+function prevWeek() { weekOffset--; buildCalendar(); }
+function nextWeek() { weekOffset++; buildCalendar(); }
+function goToday()  { weekOffset=0; buildCalendar(); }
 
-function fmtTime(t) { return t||'—'; }
-
-// ─── WEEK STRIP ───────────────────────────────────────────────────────────────
-let weekSlots = {};
-
-async function buildWeek() {
+// ─── CALENDAR ─────────────────────────────────────────────────────────────────
+async function buildCalendar() {
   const dates = getWeekDates();
-  const from = dates[0].toISOString().slice(0,10);
-  const to   = dates[6].toISOString().slice(0,10);
+  const today = todayStr();
+  const from  = dates[0].toISOString().slice(0,10);
+  const to    = dates[6].toISOString().slice(0,10);
+
   const mon = dates[0].toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
   const sun = dates[6].toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
   document.getElementById('week-lbl').textContent = `${mon} – ${sun}`;
 
-  // Fetch all slots for the week
+  // Header
+  document.getElementById('cal-header').innerHTML =
+    '<div class="cal-hcell"></div>' +
+    dates.map(d => {
+      const iso = d.toISOString().slice(0,10);
+      const isT = iso===today;
+      return `<div class="cal-hcell${isT?' today':''}">
+        <div class="cal-hcell-day">${DAYS_FR[d.getDay()===0?6:d.getDay()-1]}</div>
+        <div class="cal-hcell-num">${d.getDate()}</div>
+      </div>`;
+    }).join('');
+
+  // Time column
+  document.getElementById('cal-times').innerHTML =
+    HOURS.map(h => `<div class="cal-time-cell">${h}h</div>`).join('');
+
+  // Day columns
+  document.getElementById('cal-days').innerHTML =
+    dates.map(d => `<div class="cal-day-col" id="dcol-${d.toISOString().slice(0,10)}">
+      ${HOURS.map(()=>'<div class="cal-hour-row"></div>').join('')}
+    </div>`).join('');
+
+  // Load slots
   try {
     const r = await fetch(`${API}/driver/week?code=${driverCode}&from=${from}&to=${to}`);
     const data = await r.json();
-    const slots = data.slots || [];
-    weekSlots = {};
-    slots.forEach(s => { if(!weekSlots[s.date]) weekSlots[s.date]=0; weekSlots[s.date]++; });
-  } catch(e) { weekSlots = {}; }
-
-  const strip = document.getElementById('days-strip');
-  strip.innerHTML = dates.map(d => {
-    const iso = d.toISOString().slice(0,10);
-    const isToday = iso===todayStr();
-    const isSel = iso===selectedDate;
-    const hasDel = weekSlots[iso]>0;
-    return `<div class="cal-day-pill${isSel?' active':''}${hasDel?' has-delivery':''}" onclick="selectDay('${iso}')">
-      <div class="cal-day-name">${DAYS[d.getDay()===0?6:d.getDay()-1]}</div>
-      <div class="cal-day-num">${d.getDate()}</div>
-      ${hasDel?'<div class="cal-day-dot"></div>':''}
-    </div>`;
-  }).join('');
-
-  loadAgendaDay(selectedDate);
-}
-
-function selectDay(iso) {
-  selectedDate = iso;
-  buildWeek();
-}
-
-function prevWeek() { weekOffset--; buildWeek(); }
-function nextWeek() { weekOffset++; buildWeek(); }
-
-// ─── AGENDA DAY ───────────────────────────────────────────────────────────────
-async function loadAgendaDay(date) {
-  const lbl = new Date(date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('agenda-day-title').textContent = lbl.charAt(0).toUpperCase()+lbl.slice(1);
-  const list = document.getElementById('agenda-list');
-  list.innerHTML = '<div class="empty">Chargement…</div>';
-  try {
-    const r = await fetch(`${API}/driver/agenda?code=${driverCode}&date=${date}`);
-    const data = await r.json();
-    const slots = (data.slots||[]).sort((a,b)=>a.time.localeCompare(b.time));
-    if (!slots.length) { list.innerHTML = '<div class="empty">Aucune livraison planifiée ce jour.</div>'; return; }
-    list.innerHTML = slots.map(s => renderSlot(s, 'agenda')).join('');
-  } catch(e) { list.innerHTML = '<div class="empty">Erreur de chargement.</div>'; }
-}
-
-function renderSlot(s, ctx) {
-  const isMine = s.driver_id === driverInfo.id;
-  const isTaken = s.driver_id && !isMine;
-  const isDelivered = s.status === 'delivered';
-
-  let cls = 'delivery-card';
-  if (isMine) cls += ' mine';
-  else if (isTaken) cls += ' taken';
-  if (isDelivered) cls += ' delivered';
-
-  let actions = '';
-  if (ctx === 'agenda') {
-    if (!s.driver_id) {
-      actions = `<div class="delivery-actions"><button class="btn-take" onclick="takeSlot('${s.id}')">🤙 Prendre cette livraison</button></div>`;
-    } else if (isMine && !isDelivered) {
-      actions = `<div class="delivery-actions">
-        <span class="btn-taken-label">✅ Ma livraison</span>
-        <button class="btn-done" onclick="markDone('${s.id}')">Livré ✓</button>
-      </div>`;
-    } else if (isTaken) {
-      actions = `<div class="delivery-actions"><span class="btn-taken-label">🏍️ Pris par ${s.driver_name}</span></div>`;
-    }
-  } else if (ctx === 'mes' && !isDelivered) {
-    actions = `<div class="delivery-actions"><button class="btn-done" onclick="markDone('${s.id}')">Marquer livré ✓</button></div>`;
-  }
-
-  return `<div class="${cls}">
-    <div class="delivery-head">
-      <div class="delivery-top">
-        <span class="delivery-client">${s.client}</span>
-        <span class="delivery-time">${s.time||'?:??'}</span>
-      </div>
-      <div class="delivery-product">${s.product||'—'}</div>
-      <div class="delivery-address"><span class="pin">📍</span>${s.address||'—'}</div>
-      ${s.notes?`<div style="font-size:12px;color:var(--y);margin-top:6px;">💬 ${s.notes}</div>`:''}
-      <div class="delivery-meta">
-        ${s.distance_km?`<span class="delivery-tag tag-km">📏 ${s.distance_km} km</span>`:''}
-        ${s.delivery_price?`<span class="delivery-tag tag-price">💰 ${s.delivery_price}€</span>`:''}
-        ${isMine?'<span class="delivery-tag tag-mine">⭐ Ma livraison</span>':''}
-        ${isTaken&&!isMine?`<span class="delivery-tag tag-taken">🏍️ ${s.driver_name}</span>`:''}
-        ${isDelivered?'<span class="delivery-tag" style="background:rgba(71,85,105,.2);color:var(--ts)">✅ Livré</span>':''}
-      </div>
-    </div>
-    ${actions}
-  </div>`;
-}
-
-async function takeSlot(slotId) {
-  try {
-    const r = await fetch(`${API}/driver/take`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({code: driverCode, slot_id: slotId})
-    });
-    if (r.ok) {
-      loadAgendaDay(selectedDate);
-      buildWeek();
-    } else {
-      const d = await r.json();
-      if (d.error === 'already_taken') alert('Cette livraison a déjà été prise par un autre livreur.');
-    }
+    (data.slots||[]).forEach(s => placeCalEvent(s));
   } catch(e) {}
 }
 
+function placeCalEvent(slot) {
+  if (!slot.time) return;
+  const [h,m] = slot.time.split(':').map(Number);
+  if (h<8||h>22) return;
+  const col = document.getElementById('dcol-'+slot.date);
+  if (!col) return;
+
+  const isMine     = slot.driver_id === driverInfo.id;
+  const isTaken    = slot.driver_id && !isMine;
+  const isDelivered= slot.status==='delivered';
+
+  let cls = 'cal-event ';
+  cls += isDelivered ? 'delivered' : isMine ? 'mine' : isTaken ? 'taken' : 'available';
+
+  const top  = (h-8)*52 + Math.round((m/60)*52);
+  const ev   = document.createElement('div');
+  ev.className = cls;
+  ev.style.top = top+'px';
+  ev.style.height = '48px';
+  ev.innerHTML = `<div class="cal-event-time">${slot.time}</div><div class="cal-event-name">${slot.client}</div>`;
+  ev.onclick = () => openSheet(slot);
+  col.appendChild(ev);
+}
+
+// ─── SHEET ────────────────────────────────────────────────────────────────────
+function openSheet(slot) {
+  currentSlot = slot;
+  const isMine     = slot.driver_id === driverInfo.id;
+  const isTaken    = slot.driver_id && !isMine;
+  const isDelivered= slot.status==='delivered';
+
+  document.getElementById('sh-title').textContent   = `📅 ${slot.date} à ${slot.time||'?'}`;
+  document.getElementById('sh-client').textContent  = slot.client;
+  document.getElementById('sh-product').textContent = slot.product||'—';
+  document.getElementById('sh-address').textContent = slot.address||'—';
+
+  if (slot.notes) {
+    document.getElementById('sh-notes-wrap').style.display='';
+    document.getElementById('sh-notes').textContent = slot.notes;
+  } else {
+    document.getElementById('sh-notes-wrap').style.display='none';
+  }
+
+  // Tags
+  let tags = '';
+  if (slot.distance_km) tags += `<span class="sheet-tag tag-km">📏 ${slot.distance_km} km</span>`;
+  if (slot.delivery_price) tags += `<span class="sheet-tag tag-price">💰 ${slot.delivery_price}€</span>`;
+  if (isMine && !isDelivered) tags += `<span class="sheet-tag tag-mine">⭐ Ma livraison</span>`;
+  if (isTaken) tags += `<span class="sheet-tag tag-taken">🏍️ ${slot.driver_name}</span>`;
+  document.getElementById('sh-tags').innerHTML = tags;
+
+  // Action
+  let action = '';
+  if (isDelivered) {
+    action = `<div class="btn-done-lbl">✅ Livraison terminée</div>`;
+  } else if (isMine) {
+    action = `<button class="btn-livré" onclick="markDone('${slot.id}')">✅ Marquer comme livré</button>`;
+  } else if (!slot.driver_id) {
+    action = `<button class="btn-take" onclick="takeSlot('${slot.id}')">🤙 Prendre cette livraison</button>`;
+  } else {
+    action = `<div class="btn-taken-lbl">🏍️ Livraison prise par ${slot.driver_name}</div>`;
+  }
+  document.getElementById('sh-action').innerHTML = action;
+
+  document.getElementById('sheet-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('sheet').classList.add('open'), 10);
+}
+
+function closeSheet() {
+  document.getElementById('sheet').classList.remove('open');
+  document.getElementById('sheet-overlay').classList.remove('open');
+  currentSlot = null;
+}
+
+async function takeSlot(slotId) {
+  const r = await fetch(`${API}/driver/take`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({code: driverCode, slot_id: slotId})
+  }).catch(()=>null);
+  if (r?.ok) {
+    closeSheet();
+    buildCalendar();
+    updateMesBadge();
+  } else if (r) {
+    const d = await r.json();
+    if (d.error==='already_taken') alert('Déjà pris par un autre livreur !');
+  }
+}
+
 async function markDone(slotId) {
-  await fetch(`${API}/admin/schedule-status`, {
-    method:'POST', headers:{'Content-Type':'application/json','X-Secret': driverCode},
-    body: JSON.stringify({id: slotId, status:'delivered'})
-  });
-  // On essaie avec le code admin aussi (fallback)
   await fetch(`${API}/driver/done`, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({code: driverCode, slot_id: slotId})
   }).catch(()=>{});
-  loadAgendaDay(selectedDate);
+  closeSheet();
+  buildCalendar();
   loadMes();
   loadStats();
 }
@@ -444,29 +479,84 @@ async function loadMes() {
     const r = await fetch(`${API}/driver/stats?code=${driverCode}`);
     const data = await r.json();
     const slots = data.slots||[];
-    if(!slots.length){list.innerHTML='<div class="empty">Aucune livraison assignée pour le moment.</div>';return;}
-    list.innerHTML = slots.map(s => renderSlot(s, 'mes')).join('');
+    const pending = slots.filter(s => s.status!=='delivered');
+    document.getElementById('mes-count').textContent =
+      `${slots.length} livraison${slots.length>1?'s':''} · ${pending.length} en cours`;
+    updateMesBadge(pending.length);
+    if (!slots.length) { list.innerHTML='<div class="empty">Aucune livraison assignée.</div>'; return; }
+    list.innerHTML = slots.map(s => renderMesCard(s)).join('');
   } catch(e) { list.innerHTML='<div class="empty">Erreur.</div>'; }
+}
+
+function renderMesCard(s) {
+  const isDelivered = s.status==='delivered';
+  return `
+  <div class="delivery-card${isDelivered?' delivered':''}" id="mc-${s.id}">
+    <div class="delivery-head" onclick="toggleMesCard('${s.id}')">
+      <div class="delivery-head-top">
+        <span class="delivery-client">${s.client}</span>
+        <span class="delivery-time-pill">${s.time||'?:??'}</span>
+      </div>
+      <div class="delivery-product">${s.product||'—'}</div>
+      <div class="delivery-addr"><span>📍</span>${s.address||'—'}</div>
+    </div>
+    <div class="delivery-tags">
+      ${s.distance_km?`<span class="sheet-tag tag-km">📏 ${s.distance_km} km</span>`:''}
+      ${s.delivery_price?`<span class="sheet-tag tag-price">💰 ${s.delivery_price}€</span>`:''}
+      ${isDelivered?'<span class="sheet-tag" style="background:rgba(71,85,105,.2);color:var(--ts)">✅ Livré</span>':'<span class="sheet-tag tag-mine">⏳ En cours</span>'}
+    </div>
+    <button class="delivery-expand" id="mexp-${s.id}">Voir le détail ∨</button>
+    <div class="delivery-detail" id="mdet-${s.id}">
+      <div class="detail-row"><span>📅 Date</span><span class="detail-val">${s.date}</span></div>
+      <div class="detail-row"><span>🕐 Heure</span><span class="detail-val">${s.time||'—'}</span></div>
+      <div class="detail-row"><span>📦 Produit</span><span class="detail-val">${s.product||'—'}</span></div>
+      <div class="detail-row"><span>💰 Frais livraison</span><span class="detail-val">${s.delivery_price||0}€</span></div>
+      ${s.distance_km?`<div class="detail-row"><span>📏 Distance</span><span class="detail-val">${s.distance_km} km</span></div>`:''}
+      ${s.notes?`<div class="detail-row"><span>💬 Notes</span><span class="detail-val">${s.notes}</span></div>`:''}
+      ${!isDelivered
+        ? `<button class="btn-livré-card" onclick="markDoneCard('${s.id}')">✅ Marquer comme livré</button>`
+        : `<div class="detail-done">✅ Livraison validée</div>`}
+    </div>
+  </div>`;
+}
+
+function toggleMesCard(id) {
+  const det = document.getElementById('mdet-'+id);
+  const exp = document.getElementById('mexp-'+id);
+  const open = det.classList.toggle('open');
+  exp.textContent = open ? 'Masquer ∧' : 'Voir le détail ∨';
+}
+
+async function markDoneCard(slotId) {
+  await fetch(`${API}/driver/done`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({code: driverCode, slot_id: slotId})
+  }).catch(()=>{});
+  loadMes();
+  buildCalendar();
+  loadStats();
+}
+
+function updateMesBadge(n) {
+  if (n===undefined) { fetch(`${API}/driver/stats?code=${driverCode}`).then(r=>r.json()).then(d=>{ const p=(d.slots||[]).filter(s=>s.status!=='delivered').length; const b=document.getElementById('mes-badge'); b.textContent=p; b.style.display=p>0?'':'none'; }).catch(()=>{}); return; }
+  const b=document.getElementById('mes-badge'); b.textContent=n; b.style.display=n>0?'':'none';
 }
 
 // ─── STATS ────────────────────────────────────────────────────────────────────
 async function loadStats() {
   try {
     const r = await fetch(`${API}/driver/stats?code=${driverCode}`);
-    const data = await r.json();
-    document.getElementById('s-count').textContent = data.deliveries||0;
-    document.getElementById('s-dist').textContent  = (data.totalDistance||0)+' km';
-    document.getElementById('s-net').textContent   = (data.netProfit||0)+'€';
-    document.getElementById('s-owed').textContent  = (data.moneyOwed||0)+'€';
-    document.getElementById('f-rev').textContent   = (data.deliveryRevenue||0)+'€';
-    document.getElementById('f-dist').textContent  = (data.totalDistance||0)+' km';
-    document.getElementById('f-fuel').textContent  = '−'+(data.fuelCost||0)+'€';
-    document.getElementById('f-net').textContent   = (data.netProfit||0)+'€';
-    document.getElementById('f-owed').textContent  = (data.moneyOwed||0)+'€';
-    const slots = data.slots||[];
-    document.getElementById('stats-list').innerHTML = slots.length
-      ? slots.map(s => renderSlot(s,'stats')).join('')
-      : '<div class="empty">Aucune livraison.</div>';
+    const d = await r.json();
+    document.getElementById('s-count').textContent = d.deliveries||0;
+    document.getElementById('s-dist').textContent  = (d.totalDistance||0)+' km';
+    document.getElementById('s-net').textContent   = (d.netProfit||0)+'€';
+    document.getElementById('s-owed').textContent  = (d.moneyOwed||0)+'€';
+    document.getElementById('f-rev').textContent   = (d.deliveryRevenue||0)+'€';
+    document.getElementById('f-dist').textContent  = (d.totalDistance||0)+' km';
+    document.getElementById('f-fuel').textContent  = '−'+(d.fuelCost||0)+'€';
+    document.getElementById('f-net').textContent   = (d.netProfit||0)+'€';
+    document.getElementById('f-owed').textContent  = (d.moneyOwed||0)+'€';
+    updateMesBadge((d.slots||[]).filter(s=>s.status!=='delivered').length);
   } catch(e) {}
 }
 </script>
