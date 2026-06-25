@@ -250,10 +250,39 @@ a{text-decoration:none;color:inherit;}
 .modal-confirm{flex:1;background:var(--y);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;color:#000;}
 .modal-cancel{background:none;border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:14px;color:var(--tm);}
 
-/* ── MINI CHART ── */
-.mini-chart{display:flex;align-items:flex-end;gap:3px;height:48px;margin-top:8px;}
-.mini-bar{flex:1;background:var(--y);border-radius:3px 3px 0 0;opacity:.7;min-height:3px;}
-.mini-bar:hover{opacity:1;}
+/* ── CHART SVG ── */
+.chart-wrap{margin-top:10px;width:100%;}
+.chart-wrap svg{width:100%;overflow:visible;}
+.chart-bar{fill:var(--y);opacity:.75;transition:opacity .15s;cursor:default;border-radius:4px;}
+.chart-bar:hover{opacity:1;}
+.chart-label{fill:var(--ts);font-size:9px;text-anchor:middle;font-family:-apple-system,sans-serif;}
+.chart-val{fill:var(--y);font-size:9px;text-anchor:middle;font-family:-apple-system,sans-serif;font-weight:700;}
+
+/* ── CLIENTS ── */
+.search-bar{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--rad-sm);padding:10px 14px;color:var(--t);font-size:14px;outline:none;margin-bottom:14px;transition:border .2s;}
+.search-bar:focus{border-color:var(--y);}
+.client-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;margin-bottom:8px;transition:border .15s;}
+.client-card:hover{border-color:var(--border2);}
+.client-head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;}
+.client-avatar{width:40px;height:40px;border-radius:12px;background:var(--yd);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.client-info{flex:1;min-width:0;}
+.client-name{font-size:14px;font-weight:800;color:var(--y);margin-bottom:2px;}
+.client-meta{font-size:12px;color:var(--tm);}
+.client-stats{display:flex;gap:8px;flex-shrink:0;text-align:right;}
+.client-stat{background:var(--card2);border-radius:8px;padding:5px 10px;}
+.client-stat-val{font-size:14px;font-weight:800;}
+.client-stat-lbl{font-size:10px;color:var(--ts);}
+.client-orders{display:none;border-top:1px solid var(--border);padding:10px 16px;background:var(--card2);}
+.client-orders.open{display:block;}
+.client-order-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.client-card{cursor:pointer;padding:14px 16px;}
+.client-card-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.client-phone{font-size:12px;color:var(--tm);margin-top:2px;}
+.client-badge{font-size:12px;font-weight:700;background:var(--yd);color:var(--y);border-radius:20px;padding:2px 8px;display:inline-block;}
+.client-spent{font-size:13px;font-weight:700;margin-top:4px;text-align:right;}
+.client-addr{font-size:12px;color:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
+.client-last{font-size:11px;color:var(--tm);margin-top:6px;}
+.client-order-row:last-child{border-bottom:none;}
 
 /* ── BREAKDOWN ── */
 .breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
@@ -376,6 +405,7 @@ a{text-decoration:none;color:inherit;}
       <div class="sb-item" data-page="orders" onclick="nav('orders')"><span class="icon">📋</span>Commandes</div>
       <div class="sb-item" data-page="agenda" onclick="nav('agenda')"><span class="icon">📅</span>Agenda</div>
       <div class="sb-item" data-page="drivers" onclick="nav('drivers')"><span class="icon">🏍️</span>Livreurs</div>
+      <div class="sb-item" data-page="clients" onclick="nav('clients')"><span class="icon">👥</span>Clients</div>
     </nav>
     <div class="sb-footer">
       <div class="sb-status">
@@ -515,6 +545,15 @@ a{text-decoration:none;color:inherit;}
 
       <div class="drivers-grid" id="drivers-list"></div>
     </div>
+
+    <!-- ── PAGE CLIENTS ── -->
+    <div id="page-clients" class="content" style="display:none">
+      <input class="search-bar" id="client-search" placeholder="🔍 Rechercher un client…" oninput="filterClients(this.value)">
+      <div class="section-hd" style="margin-bottom:12px;">
+        <span class="section-title" id="clients-lbl">Clients</span>
+      </div>
+      <div id="clients-list"></div>
+    </div>
   </main>
 </div>
 
@@ -536,6 +575,10 @@ a{text-decoration:none;color:inherit;}
   <div class="bn-item" id="bn-drivers" onclick="nav('drivers')">
     <span class="bn-icon">🏍️</span>
     <span>Livreurs</span>
+  </div>
+  <div class="bn-item" id="bn-clients" onclick="nav('clients')">
+    <span class="bn-icon">👥</span>
+    <span>Clients</span>
   </div>
 </nav>
 </div>
@@ -619,7 +662,7 @@ let secret = '';
 let planOrder = null;
 let weekOffset = 0;
 const _ordersMap = {};
-const PAGES = ['dashboard','orders','agenda','drivers'];
+const PAGES = ['dashboard','orders','agenda','drivers','clients'];
 
 // ─── LOGIN ───────────────────────────────────────────────────────────────────
 function tryLogin() {
@@ -654,7 +697,8 @@ const pageTitles = {
   dashboard: ['Dashboard','Vue d\'ensemble du shop'],
   orders:    ['Commandes','Historique et gestion'],
   agenda:    ['Agenda','Planning des livraisons'],
-  drivers:   ['Livreurs','Gestion de l\'équipe']
+  drivers:   ['Livreurs','Gestion de l\'équipe'],
+  clients:   ['Clients','Répertoire client']
 };
 
 function nav(p) {
@@ -671,6 +715,7 @@ function nav(p) {
   if (p==='orders') loadOrders();
   if (p==='agenda') { buildCalendar(); loadCalendar(); }
   if (p==='drivers') loadDrivers();
+  if (p==='clients') loadClients();
 }
 
 // ─── DATES ───────────────────────────────────────────────────────────────────
@@ -688,6 +733,7 @@ async function autoRefresh() {
   if (_currentPage === 'dashboard') { await loadDashboard(); }
   else if (_currentPage === 'orders') { await loadOrders(); }
   else if (_currentPage === 'agenda') { await loadCalendar(); }
+  else if (_currentPage === 'clients') { await loadClients(); }
 }
 
 async function clearAllData() {
@@ -1059,6 +1105,111 @@ async function deleteDriver(id) {
   if(!confirm('Supprimer ce livreur ?')) return;
   await apiFetch('/admin/drivers?id='+id, {method:'DELETE'});
   loadDrivers();
+}
+
+// ─── CLIENTS ─────────────────────────────────────────────────────────────────
+let _allClients = [];
+
+async function loadClients() {
+  const orders = await apiFetch('/admin/orders?from=2000-01-01&to=2099-12-31');
+  if (!orders) return;
+
+  const map = {};
+  orders.forEach(o => {
+    const name = (o.name || o.username || '').trim();
+    const key  = name;
+    if (!key) return;
+    if (!map[key]) {
+      map[key] = { name, username: o.username||'', orders: [], totalSpent: 0, addresses: new Set() };
+    }
+    map[key].orders.push(o);
+    map[key].totalSpent += (o.total || 0);
+    if (o.deliveryAddress) map[key].addresses.add(o.deliveryAddress);
+  });
+
+  _allClients = Object.values(map).sort((a,b) => b.orders.length - a.orders.length);
+
+  const lbl = document.getElementById('clients-lbl');
+  if (lbl) lbl.textContent = `Clients (${_allClients.length})`;
+
+  filterClients(document.getElementById('client-search')?.value || '');
+}
+
+function filterClients(q) {
+  const list = document.getElementById('clients-list');
+  if (!list) return;
+  const term = q.toLowerCase().trim();
+  _filteredClients = term
+    ? _allClients.filter(c =>
+        c.name.toLowerCase().includes(term) ||
+        c.phone.includes(term))
+    : _allClients;
+  const filtered = _filteredClients;
+
+  if (!filtered.length) {
+    list.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:32px 0;">Aucun client trouvé</p>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(c => {
+    const lastOrder = c.orders[c.orders.length - 1];
+    const lastDate  = lastOrder ? fmtDate(lastOrder.timestamp || '') : '—';
+    const addrs = [...c.addresses].slice(0,2).map(a =>
+      `<div class="client-addr">📍 ${a}</div>`).join('');
+    const idx = filtered.indexOf(c);
+    return `
+    <div class="client-card" onclick="openClientDetail(${idx})">
+      <div class="client-card-hd">
+        <div>
+          <div class="client-name">${c.name || 'Inconnu'}</div>
+          ${c.username ? `<div class="client-phone">@${c.username}</div>` : ''}
+        </div>
+        <div style="text-align:right">
+          <div class="client-badge">${c.orders.length} cmd${c.orders.length>1?'s':''}</div>
+          <div class="client-spent">${c.totalSpent.toFixed(2)} €</div>
+        </div>
+      </div>
+      ${addrs}
+      <div class="client-last">Dernière commande : ${lastDate}</div>
+    </div>`;
+  }).join('');
+}
+
+let _clientDetail = null;
+let _filteredClients = [];
+function openClientDetail(idx) {
+  _clientDetail = _filteredClients[idx];
+  if (!_clientDetail) return;
+  const c = _clientDetail;
+  const sheet = document.getElementById('driver-sheet');
+  const content = document.getElementById('driver-sheet-content');
+
+  const orderRows = [...c.orders].reverse().map(o => {
+    const d = fmtDate(o.timestamp || '');
+    const status = o.status === 'delivered' ? '✅' : o.status === 'pending' ? '⏳' : '🚗';
+    return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-color);font-size:13px">
+      <span>${status} ${d} — ${o.option||o.name||'?'}</span>
+      <span style="font-weight:600">${(o.total||0).toFixed(2)} €</span>
+    </div>`;
+  }).join('');
+
+  const allAddrs = [...c.addresses];
+
+  content.innerHTML = `
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">${c.name||'Inconnu'}</div>
+    ${c.username ? `<div style="color:var(--text-muted);margin-bottom:16px">@${c.username}</div>` : ''}
+    <div class="sheet-stat-grid" style="margin-bottom:16px">
+      <div class="sheet-stat"><div class="sheet-stat-val">${c.orders.length}</div><div class="sheet-stat-lbl">Commandes</div></div>
+      <div class="sheet-stat"><div class="sheet-stat-val">${c.totalSpent.toFixed(0)} €</div><div class="sheet-stat-lbl">Total dépensé</div></div>
+    </div>
+    ${allAddrs.length ? `<div style="font-size:13px;color:var(--text-muted);margin-bottom:8px">Adresses connues</div>
+      ${allAddrs.map(a=>`<div style="background:var(--bg-card);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px">📍 ${a}</div>`).join('')}` : ''}
+    <div style="font-size:13px;color:var(--text-muted);margin:12px 0 8px">Historique</div>
+    ${orderRows || '<p style="color:var(--text-muted);font-size:13px">Aucune commande</p>'}
+  `;
+
+  document.getElementById('sheet-overlay').classList.add('open');
+  sheet.classList.add('open');
 }
 </script>
 </body>
