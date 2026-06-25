@@ -414,11 +414,6 @@ a{text-decoration:none;color:inherit;}
       <div class="modal-form">
         <div class="form-group"><label>Date</label><input type="date" id="m-date" class="inp" style="width:100%"></div>
         <div class="form-group"><label>Heure</label><input type="time" id="m-time" class="inp" style="width:100%"></div>
-        <div class="form-group modal-form-full"><label>Livreur</label>
-          <select id="m-driver" class="inp" style="width:100%">
-            <option value="">Aucun (planifier sans livreur)</option>
-          </select>
-        </div>
         <div class="form-group modal-form-full"><label>Notes</label><input id="m-notes" class="inp" placeholder="Digicode, étage…" style="width:100%"></div>
       </div>
       <div class="modal-actions">
@@ -434,6 +429,7 @@ const API = 'https://cdl59-bot-production.up.railway.app';
 let secret = '';
 let planOrder = null;
 let weekOffset = 0;
+const _ordersMap = {};
 
 // ─── LOGIN ───────────────────────────────────────────────────────────────────
 function tryLogin() {
@@ -512,11 +508,11 @@ async function loadDashboard() {
   const t = todayStr();
   const today = await apiFetch(`/admin/stats?from=${t}&to=${t}`);
   document.getElementById('d-orders').textContent    = today.ordersCount;
-  document.getElementById('d-revenue').textContent   = (today.totalRevenue||0)+'€';
+  document.getElementById('d-revenue').textContent   = (today.productRevenue||0)+'€';
   document.getElementById('d-delivery').textContent  = (today.deliveryRevenue||0)+'€';
   document.getElementById('d-active').textContent    = today.activeUsers??0;
   document.getElementById('d-orders-sub').textContent= `${today.livraisonCount} livraisons · ${today.surplaceCount} sur place`;
-  document.getElementById('d-revenue-sub').textContent= `Produits : ${today.productRevenue??0}€`;
+  document.getElementById('d-revenue-sub').textContent= `Total encaissé : ${today.totalRevenue??0}€`;
   document.getElementById('d-delivery-sub').textContent= `${today.livraisonCount} course(s)`;
   document.getElementById('d-tank').textContent      = today.tankCount+' cmd';
   document.getElementById('d-bonbonne').textContent  = today.bonbonneCount+' cmd';
@@ -552,8 +548,10 @@ async function loadOrders() {
 
 function renderOrderList(container, orders, compact) {
   if (!orders.length) { container.innerHTML = '<div class="empty">Aucune commande sur cette période.</div>'; return; }
+  orders.forEach(o => { _ordersMap[o.id] = o; });
   container.innerHTML = orders.map(o => {
     const isLiv = o.delivery==='livraison';
+    const prodRev = (o.total||0) - (o.deliveryPrice||0);
     return `
     <div class="order-row" id="or-${o.id}">
       <div class="order-head" onclick="toggleOrder('${o.id}')">
@@ -566,7 +564,7 @@ function renderOrderList(container, orders, compact) {
           <div class="order-desc">${o.name} — ${o.option}${isLiv&&o.deliveryAddress?' · 📍 '+o.deliveryAddress:''}</div>
         </div>
         <div class="order-right">
-          <span class="order-amount">${o.total}€</span>
+          <span class="order-amount">${prodRev}€</span>
           <span class="status-pill ${o.status==='delivered'?'pill-delivered':'pill-pending'}">${o.status==='delivered'?'✅ Livré':'⏳ Att.'}</span>
           <button class="order-expand" id="exp-${o.id}">›</button>
         </div>
@@ -577,14 +575,14 @@ function renderOrderList(container, orders, compact) {
           <div class="detail-field"><label>Heure</label><span>${fmtDate(o.timestamp)} ${fmtTime(o.timestamp)}</span></div>
           <div class="detail-field"><label>Produit</label><span>${o.name}</span></div>
           <div class="detail-field"><label>Option</label><span>${o.option}</span></div>
-          <div class="detail-field"><label>Mode de livraison</label><span>${isLiv?'🛵 Livraison':'🏠 Sur place'}</span></div>
-          <div class="detail-field"><label>Total commande</label><span style="color:var(--y)">${o.total}€</span></div>
-          ${isLiv?`<div class="detail-field"><label>Adresse</label><span>${o.deliveryAddress||'—'}</span></div>`:'' }
-          ${isLiv?`<div class="detail-field"><label>Distance</label><span>${o.distanceKm||0} km · Livraison ${o.deliveryPrice||0}€</span></div>`:''}
+          <div class="detail-field"><label>Mode</label><span>${isLiv?'🛵 Livraison':'🏠 Sur place'}</span></div>
+          <div class="detail-field"><label>Revenus produit</label><span style="color:var(--y)">${prodRev}€</span></div>
+          ${isLiv?`<div class="detail-field"><label>Adresse</label><span>${o.deliveryAddress||'—'}</span></div>`:''}
+          ${isLiv?`<div class="detail-field"><label>Livraison</label><span>${o.distanceKm||0} km · ${o.deliveryPrice||0}€</span></div>`:''}
         </div>
         <div class="detail-actions">
-          ${isLiv?`<button class="btn-action btn-plan" onclick="openPlanModal(${JSON.stringify(o).replace(/"/g,'&quot;')})">📅 Planifier livraison</button>`:''}
-          <button class="btn-action btn-done" onclick="setOrderStatus('${o.id}','${o.status==='delivered'?'pending':'delivered'}','or-${o.id}')">
+          ${isLiv?`<button class="btn-action btn-plan" onclick="openPlanModal('${o.id}')">📅 Planifier livraison</button>`:''}
+          <button class="btn-action btn-done" onclick="setOrderStatus('${o.id}','${o.status==='delivered'?'pending':'delivered'}')">
             ${o.status==='delivered'?'↩ Réouvrir':'✅ Marquer livré'}
           </button>
         </div>
@@ -606,30 +604,26 @@ async function setOrderStatus(id, status, rowId) {
 }
 
 // ─── PLAN MODAL ──────────────────────────────────────────────────────────────
-function openPlanModal(o) {
-  planOrder = o;
+function openPlanModal(orderId) {
+  planOrder = _ordersMap[orderId];
+  if (!planOrder) return;
+  const o = planOrder;
   const s = document.getElementById('modal-summary');
   s.innerHTML = `
     <div class="modal-order-row"><span>Client</span><strong>${o.username}</strong></div>
     <div class="modal-order-row"><span>Produit</span><strong>${o.name} — ${o.option}</strong></div>
     <div class="modal-order-row"><span>Adresse</span><strong>${o.deliveryAddress||'—'}</strong></div>
     <div class="modal-order-row"><span>Distance</span><strong>${o.distanceKm||0} km</strong></div>
-    <div class="modal-order-row"><span>Total</span><strong style="color:var(--y)">${o.total}€</strong></div>`;
+    <div class="modal-order-row"><span>Frais livraison</span><strong style="color:var(--y)">${o.deliveryPrice||0}€</strong></div>`;
   document.getElementById('m-date').value = todayStr();
   document.getElementById('m-time').value = '';
   document.getElementById('m-notes').value = '';
-  // Fill driver dropdown
-  const sel = document.getElementById('m-driver');
-  sel.innerHTML = '<option value="">Aucun (sans livreur)</option>' +
-    driversCache.map(d => `<option value="${d.id}">${vehicleIcon(d.vehicle)} ${d.name} — ${d.telegram}</option>`).join('');
   document.getElementById('plan-modal').classList.add('open');
 }
 function closePlanModal() { document.getElementById('plan-modal').classList.remove('open'); planOrder=null; }
 
 async function confirmPlan() {
   if (!planOrder) return;
-  const driverId = document.getElementById('m-driver').value;
-  const driver = driversCache.find(d => d.id === driverId);
   const slot = {
     date:          document.getElementById('m-date').value,
     time:          document.getElementById('m-time').value,
@@ -638,11 +632,10 @@ async function confirmPlan() {
     product:       `${planOrder.name} — ${planOrder.option}`,
     notes:         document.getElementById('m-notes').value,
     order_id:      planOrder.id,
-    delivery_price:planOrder.deliveryPrice||planOrder.total||0,
+    delivery_price:planOrder.deliveryPrice||0,
     order_total:   planOrder.total||0,
     distance_km:   planOrder.distanceKm||0,
   };
-  if (driverId && driver) { slot.driver_id=driverId; slot.driver_name=driver.name; }
   await apiFetch('/admin/schedule', {method:'POST', body:JSON.stringify(slot)});
   closePlanModal();
   buildCalendar(); loadCalendar();
