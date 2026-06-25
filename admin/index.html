@@ -750,7 +750,7 @@ async function confirmPlan() {
 }
 
 // ─── CALENDAR ────────────────────────────────────────────────────────────────
-const HOURS = Array.from({length:15},(_,i)=>i+8);
+const HOURS = Array.from({length:24},(_,i)=>i);
 const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 
 function getWeekDates() {
@@ -801,8 +801,7 @@ async function loadCalendar() {
 function placeEvent(col, slot) {
   if(!slot.time) return;
   const [h,m] = slot.time.split(':').map(Number);
-  if(h<8||h>22) return;
-  const top = (h-8)*60 + (m||0);
+  const top = h*60 + (m||0);
   const statusClass = slot.status==='delivered'?'delivered':slot.driver_id?'assigned':'pending';
   const ev = document.createElement('div');
   ev.className = `cal-event ${statusClass}`;
