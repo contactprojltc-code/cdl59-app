@@ -395,6 +395,7 @@ a{text-decoration:none;color:inherit;}
       </div>
       <div class="topbar-right">
         <div class="live-chip"><span class="dot"></span><span id="topbar-time">—</span></div>
+        <button onclick="clearAllData()" style="background:var(--rd);border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;color:var(--r);cursor:pointer;" title="Effacer toutes les données">🗑️</button>
       </div>
     </div>
 
@@ -640,7 +641,7 @@ function init() {
   loadDashboard();
   loadDrivers();
   buildCalendar();
-  setInterval(liveUpdate, 30000);
+  setInterval(autoRefresh, 10000);
 }
 window.addEventListener('DOMContentLoaded', () => {
   const s = sessionStorage.getItem('cdl_s');
@@ -656,9 +657,8 @@ const pageTitles = {
 };
 
 function nav(p) {
-  // Sidebar
+  _currentPage = p;
   document.querySelectorAll('.sb-item').forEach(i => i.classList.toggle('active', i.dataset.page===p));
-  // Bottom nav
   PAGES.forEach(n => {
     const bn = document.getElementById('bn-'+n);
     if (bn) bn.classList.toggle('active', n===p);
@@ -679,6 +679,23 @@ function setToday(f,t) { document.getElementById(f).value=todayStr(); document.g
 function setRange(f,t,n) { document.getElementById(f).value=daysAgo(n-1); document.getElementById(t).value=todayStr(); }
 function fmtTime(iso) { return new Date(iso).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
 function fmtDate(iso) { return new Date(iso).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}); }
+
+// ─── AUTO REFRESH TEMPS RÉEL ─────────────────────────────────────────────────
+let _currentPage = 'dashboard';
+async function autoRefresh() {
+  await liveUpdate();
+  if (_currentPage === 'dashboard') { await loadDashboard(); }
+  else if (_currentPage === 'orders') { await loadOrders(); }
+  else if (_currentPage === 'agenda') { await loadCalendar(); }
+}
+
+async function clearAllData() {
+  if (!confirm('Effacer TOUTES les commandes et l\'agenda ? (irréversible)')) return;
+  await apiFetch('/admin/clear-data', {method:'POST', body:'{}'});
+  await loadDashboard();
+  buildCalendar(); loadCalendar();
+  alert('Données effacées.');
+}
 
 // ─── LIVE UPDATE ─────────────────────────────────────────────────────────────
 async function liveUpdate() {
