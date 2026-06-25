@@ -830,8 +830,8 @@ function renderOrderList(container, orders, compact) {
     const isLiv = o.delivery==='livraison';
     const prodRev = (o.total||0) - (o.deliveryPrice||0);
     return `
-    <div class="order-row" id="or-${o.id}">
-      <div class="order-head" onclick="toggleOrder('${o.id}')">
+    <div class="order-row" data-oid="${o.id}">
+      <div class="order-head" onclick="toggleOrder(this)">
         <div class="order-type-badge ${isLiv?'type-livraison':'type-surplace'}">${isLiv?'🛵':'🏠'}</div>
         <div class="order-meta">
           <div class="order-meta-top">
@@ -843,10 +843,10 @@ function renderOrderList(container, orders, compact) {
         <div class="order-right">
           <span class="order-amount">${prodRev}€</span>
           <span class="status-pill ${o.status==='delivered'?'pill-delivered':'pill-pending'}">${o.status==='delivered'?'✅':'⏳'}</span>
-          <button class="order-expand" id="exp-${o.id}" onclick="toggleOrder('${o.id}')">›</button>
+          <button class="order-expand" onclick="toggleOrder(this)">›</button>
         </div>
       </div>
-      <div class="order-detail" id="od-${o.id}">
+      <div class="order-detail">
         <div class="detail-grid">
           <div class="detail-field"><label>Client</label><span>${o.username}</span></div>
           <div class="detail-field"><label>Heure</label><span>${fmtDate(o.timestamp)} ${fmtTime(o.timestamp)}</span></div>
@@ -868,11 +868,12 @@ function renderOrderList(container, orders, compact) {
   }).join('');
 }
 
-function toggleOrder(id) {
-  const d = document.getElementById('od-'+id);
-  const e = document.getElementById('exp-'+id);
+function toggleOrder(el) {
+  const row  = el.closest('.order-row');
+  const d    = row.querySelector('.order-detail');
+  const e    = row.querySelector('.order-expand');
   const open = d.classList.toggle('open');
-  e.textContent = open ? '⌄' : '›';
+  if (e) e.textContent = open ? '⌄' : '›';
 }
 
 async function setOrderStatus(id, status) {
