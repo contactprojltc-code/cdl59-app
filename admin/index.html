@@ -142,32 +142,67 @@ a{text-decoration:none;color:inherit;}
 .btn-del:hover{background:rgba(239,68,68,.15);}
 .empty{text-align:center;padding:48px;color:var(--ts);font-size:14px;}
 
-/* ── CALENDAR ── */
-.cal-nav{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-.cal-nav-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--tm);transition:all .15s;}
+/* ── CALENDAR (identique portail livreur) ── */
+.cal-nav{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.cal-nav-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--tm);flex-shrink:0;transition:all .15s;}
 .cal-nav-btn:hover{border-color:var(--border2);color:var(--t);}
-.cal-week-label{font-size:14px;font-weight:700;flex:1;}
-.calendar{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;}
-.cal-scroll-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.cal-inner{min-width:600px;}
-.cal-header{display:grid;grid-template-columns:52px repeat(7,1fr);border-bottom:1px solid var(--border);}
-.cal-header-cell{padding:10px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--tm);}
-.cal-header-cell.today{color:var(--y);}
-.cal-header-day{font-size:18px;font-weight:800;color:var(--t);display:block;margin-top:2px;}
-.cal-header-cell.today .cal-header-day{color:var(--y);}
-.cal-body{display:grid;grid-template-columns:52px repeat(7,1fr);overflow-y:auto;max-height:600px;}
+.cal-week-label{font-size:13px;font-weight:700;flex:1;text-align:center;color:var(--tm);}
+.cal-grid-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;}
+.cal-header{display:grid;grid-template-columns:38px repeat(7,1fr);border-bottom:1px solid var(--border);}
+.cal-hcell{padding:8px 3px;text-align:center;}
+.cal-hcell-day{font-size:9px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.3px;}
+.cal-hcell-num{font-size:16px;font-weight:800;margin-top:2px;color:var(--tm);}
+.cal-hcell.today .cal-hcell-num{color:var(--y);}
+.cal-hcell.today .cal-hcell-day{color:var(--y);}
+.cal-scroll{overflow-y:auto;overflow-x:auto;max-height:calc(100vh - 260px);-webkit-overflow-scrolling:touch;}
+.cal-body{display:grid;grid-template-columns:38px repeat(7,1fr);position:relative;min-width:520px;}
 .cal-time-col{border-right:1px solid var(--border);}
-.cal-time-slot{height:60px;display:flex;align-items:flex-start;justify-content:flex-end;padding:4px 8px 0 0;font-size:10px;color:var(--ts);}
+.cal-time-cell{height:52px;display:flex;align-items:flex-start;justify-content:flex-end;padding:3px 5px 0 0;font-size:9px;color:var(--ts);}
 .cal-day-col{border-right:1px solid var(--border);position:relative;}
 .cal-day-col:last-child{border-right:none;}
-.cal-hour-line{height:60px;border-bottom:1px solid rgba(255,255,255,.03);}
-.cal-event{position:absolute;left:2px;right:2px;border-radius:8px;padding:4px 7px;font-size:11px;font-weight:600;cursor:pointer;z-index:2;overflow:hidden;transition:opacity .15s;}
-.cal-event:hover{opacity:.85;}
-.cal-event.pending{background:rgba(245,197,24,.18);border-left:3px solid var(--y);color:var(--y);}
-.cal-event.assigned{background:rgba(16,185,129,.18);border-left:3px solid var(--g);color:var(--g);}
-.cal-event.delivered{background:rgba(71,85,105,.2);border-left:3px solid var(--ts);color:var(--ts);}
-.cal-event-time{font-size:10px;opacity:.8;}
-.cal-event-client{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-hour-row{height:52px;border-bottom:1px solid rgba(255,255,255,.025);}
+.cal-event{position:absolute;left:2px;right:2px;border-radius:7px;padding:3px 6px;font-size:10px;font-weight:700;cursor:pointer;z-index:2;overflow:hidden;transition:all .15s;border-left:3px solid;}
+.cal-event:hover{filter:brightness(1.15);}
+.cal-event.pending{background:rgba(245,197,24,.14);border-color:var(--y);color:var(--y);}
+.cal-event.assigned{background:rgba(16,185,129,.18);border-color:var(--g);color:var(--g);}
+.cal-event.delivered{background:rgba(30,40,60,.4);border-color:rgba(71,85,105,.3);color:var(--ts);opacity:.6;}
+.cal-event-time{font-size:9px;opacity:.8;font-weight:600;}
+.cal-event-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;}
+/* légende */
+.cal-legend{display:flex;gap:10px;padding:10px 4px;flex-wrap:wrap;}
+.cal-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tm);}
+.cal-legend-dot{width:10px;height:10px;border-radius:2px;border-left:3px solid;}
+
+/* ── BOTTOM SHEET (générique) ── */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;backdrop-filter:blur(4px);}
+.sheet-overlay.open{display:block;}
+.sheet{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom);z-index:301;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto;}
+.sheet.open{transform:translateY(0);}
+.sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:999px;margin:12px auto 16px;}
+.sheet-head{padding:0 20px 14px;border-bottom:1px solid var(--border);}
+.sheet-title{font-size:17px;font-weight:800;margin-bottom:3px;}
+.sheet-sub{font-size:14px;color:var(--y);font-weight:700;}
+.sheet-body{padding:16px 20px;}
+.sheet-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.sheet-row:last-child{border-bottom:none;}
+.sheet-val{font-weight:700;}
+.sheet-val.y{color:var(--y);}
+.sheet-val.g{color:var(--g);}
+.sheet-val.r{color:var(--r);}
+.sheet-val.b{color:var(--b);}
+.sheet-footer{padding:14px 20px 4px;}
+.btn-reset{width:100%;background:var(--gd);border:1px solid rgba(16,185,129,.25);border-radius:12px;padding:13px;font-size:14px;font-weight:800;color:var(--g);margin-bottom:8px;}
+.btn-reset:hover{background:rgba(16,185,129,.22);}
+.btn-close-sheet{width:100%;background:none;border:1px solid var(--border);border-radius:12px;padding:12px;font-size:13px;color:var(--tm);}
+.sheet-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.sheet-stat{background:var(--card2);border-radius:12px;padding:12px 14px;position:relative;overflow:hidden;}
+.sheet-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sheet-stat.y::before{background:var(--y);}
+.sheet-stat.g::before{background:var(--g);}
+.sheet-stat.b::before{background:var(--b);}
+.sheet-stat.r::before{background:var(--r);}
+.sheet-stat-val{font-size:22px;font-weight:800;letter-spacing:-.4px;margin-bottom:2px;}
+.sheet-stat-lbl{font-size:11px;color:var(--tm);}
 
 /* ── DRIVERS ── */
 .drivers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
@@ -429,18 +464,21 @@ a{text-decoration:none;color:inherit;}
         <button class="cal-nav-btn" onclick="prevWeek()">‹</button>
         <span class="cal-week-label" id="week-label"></span>
         <button class="cal-nav-btn" onclick="nextWeek()">›</button>
-        <button class="btn-sm btn-ghost" onclick="goToday()">Auj.</button>
+        <button style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--tm);" onclick="goToday()">Auj.</button>
       </div>
-      <div class="calendar">
-        <div class="cal-scroll-wrap">
-          <div class="cal-inner">
-            <div class="cal-header" id="cal-header"></div>
-            <div class="cal-body">
-              <div class="cal-time-col" id="cal-times"></div>
-              <div id="cal-days" style="display:contents;"></div>
-            </div>
+      <div class="cal-grid-wrap">
+        <div class="cal-header" id="cal-header"></div>
+        <div class="cal-scroll">
+          <div class="cal-body">
+            <div class="cal-time-col" id="cal-times"></div>
+            <div id="cal-days" style="display:contents;"></div>
           </div>
         </div>
+      </div>
+      <div class="cal-legend">
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(245,197,24,.3);border-color:var(--y);"></div>Disponible</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(16,185,129,.3);border-color:var(--g);"></div>Assigné</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(30,40,60,.4);border-color:rgba(71,85,105,.3);"></div>Livré</div>
       </div>
     </div>
 
@@ -498,6 +536,57 @@ a{text-decoration:none;color:inherit;}
     <span>Livreurs</span>
   </div>
 </nav>
+</div>
+
+<!-- ══ SHEET DÉTAIL CALENDRIER ══ -->
+<div class="sheet-overlay" id="cal-sheet-overlay" onclick="closeCalSheet()"></div>
+<div class="sheet" id="cal-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <div class="sheet-title" id="cs-title">Livraison</div>
+    <div class="sheet-sub" id="cs-client"></div>
+  </div>
+  <div class="sheet-body">
+    <div class="sheet-row"><span>📦 Produit</span><span class="sheet-val" id="cs-product"></span></div>
+    <div class="sheet-row"><span>📍 Adresse</span><span class="sheet-val" id="cs-address" style="max-width:60%;text-align:right;font-size:12px;"></span></div>
+    <div class="sheet-row"><span>💬 Notes</span><span class="sheet-val" id="cs-notes"></span></div>
+    <div class="sheet-row"><span>🏍️ Livreur</span><span class="sheet-val b" id="cs-driver"></span></div>
+    <div class="sheet-row"><span>📏 Distance</span><span class="sheet-val" id="cs-dist"></span></div>
+    <div class="sheet-row"><span>💰 Livraison</span><span class="sheet-val y" id="cs-price"></span></div>
+    <div class="sheet-row"><span>Statut</span><span class="sheet-val" id="cs-status"></span></div>
+  </div>
+  <div class="sheet-footer">
+    <button class="btn-close-sheet" onclick="closeCalSheet()">Fermer</button>
+  </div>
+</div>
+
+<!-- ══ SHEET STATS LIVREUR ══ -->
+<div class="sheet-overlay" id="driver-sheet-overlay" onclick="closeDriverSheet()"></div>
+<div class="sheet" id="driver-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <div class="sheet-title" id="ds-name">Livreur</div>
+    <div class="sheet-sub" id="ds-vehicle"></div>
+  </div>
+  <div class="sheet-body">
+    <div class="sheet-stat-grid">
+      <div class="sheet-stat y"><div class="sheet-stat-val" id="ds-count">—</div><div class="sheet-stat-lbl">Livraisons</div></div>
+      <div class="sheet-stat b"><div class="sheet-stat-val" id="ds-dist">—</div><div class="sheet-stat-lbl">Kilomètres</div></div>
+      <div class="sheet-stat g"><div class="sheet-stat-val" id="ds-net">—</div><div class="sheet-stat-lbl">Bénéfice net</div></div>
+      <div class="sheet-stat r"><div class="sheet-stat-val" id="ds-owed">—</div><div class="sheet-stat-lbl">Nous doit</div></div>
+    </div>
+    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:4px;">
+      <div style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Détail financier</div>
+      <div class="sheet-row"><span>💰 Revenus livraisons</span><span class="sheet-val y" id="ds-rev">—</span></div>
+      <div class="sheet-row"><span>⛽ Coût essence</span><span class="sheet-val r" id="ds-fuel">—</span></div>
+      <div class="sheet-row"><span>🏆 Bénéfice net</span><span class="sheet-val g" id="ds-net2">—</span></div>
+      <div class="sheet-row" style="font-weight:800;font-size:14px;"><span>🏪 Nous doit</span><span class="sheet-val r" id="ds-owed2">—</span></div>
+    </div>
+  </div>
+  <div class="sheet-footer">
+    <button class="btn-reset" id="ds-reset-btn" onclick="resetDriverBalance()">✅ Marquer comme payé (remettre à zéro)</button>
+    <button class="btn-close-sheet" onclick="closeDriverSheet()">Fermer</button>
+  </div>
 </div>
 
 <!-- ══ MODAL PLANIFIER ══ -->
@@ -749,13 +838,13 @@ async function confirmPlan() {
   nav('agenda');
 }
 
-// ─── CALENDAR ────────────────────────────────────────────────────────────────
+// ─── CALENDAR (identique portail livreur) ────────────────────────────────────
 const HOURS = Array.from({length:24},(_,i)=>i);
 const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 
 function getWeekDates() {
   const d = new Date(); d.setDate(d.getDate() + weekOffset*7);
-  const day = d.getDay(); const diff = day===0?-6:1-day;
+  const day = d.getDay(), diff = day===0?-6:1-day;
   const mon = new Date(d); mon.setDate(d.getDate()+diff);
   return Array.from({length:7},(_,i)=>{ const x=new Date(mon); x.setDate(mon.getDate()+i); return x; });
 }
@@ -763,26 +852,28 @@ function getWeekDates() {
 function buildCalendar() {
   const dates = getWeekDates();
   const today = todayStr();
-  const firstDay = dates[0].toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
-  const lastDay  = dates[6].toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
-  document.getElementById('week-label').textContent = `${firstDay} – ${lastDay}`;
+  const mon = dates[0].toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  const sun = dates[6].toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  document.getElementById('week-label').textContent = `${mon} – ${sun}`;
 
-  const hdr = document.getElementById('cal-header');
-  hdr.innerHTML = '<div class="cal-header-cell"></div>' + dates.map(d => {
-    const iso = d.toISOString().slice(0,10);
-    const isToday = iso===today;
-    return `<div class="cal-header-cell${isToday?' today':''}">
-      ${DAYS_FR[d.getDay()===0?6:d.getDay()-1]}
-      <span class="cal-header-day">${d.getDate()}</span>
-    </div>`;
-  }).join('');
+  document.getElementById('cal-header').innerHTML =
+    '<div class="cal-hcell"></div>' +
+    dates.map(d => {
+      const iso = d.toISOString().slice(0,10);
+      const isT = iso===today;
+      return `<div class="cal-hcell${isT?' today':''}">
+        <div class="cal-hcell-day">${DAYS_FR[d.getDay()===0?6:d.getDay()-1]}</div>
+        <div class="cal-hcell-num">${d.getDate()}</div>
+      </div>`;
+    }).join('');
 
-  document.getElementById('cal-times').innerHTML = HOURS.map(h => `<div class="cal-time-slot">${h}h</div>`).join('');
+  document.getElementById('cal-times').innerHTML =
+    HOURS.map(h => `<div class="cal-time-cell">${h}h</div>`).join('');
 
-  const daysEl = document.getElementById('cal-days');
-  daysEl.innerHTML = dates.map(d => `<div class="cal-day-col" id="day-${d.toISOString().slice(0,10)}">
-    ${HOURS.map(()=>'<div class="cal-hour-line"></div>').join('')}
-  </div>`).join('');
+  document.getElementById('cal-days').innerHTML =
+    dates.map(d => `<div class="cal-day-col" id="day-${d.toISOString().slice(0,10)}">
+      ${HOURS.map(()=>'<div class="cal-hour-row"></div>').join('')}
+    </div>`).join('');
 }
 
 async function loadCalendar() {
@@ -801,15 +892,39 @@ async function loadCalendar() {
 function placeEvent(col, slot) {
   if(!slot.time) return;
   const [h,m] = slot.time.split(':').map(Number);
-  const top = h*60 + (m||0);
+  const top = h*52 + Math.round((m/60)*52);
   const statusClass = slot.status==='delivered'?'delivered':slot.driver_id?'assigned':'pending';
   const ev = document.createElement('div');
   ev.className = `cal-event ${statusClass}`;
   ev.style.top = top+'px';
-  ev.style.height = '52px';
-  ev.innerHTML = `<div class="cal-event-time">${slot.time}</div><div class="cal-event-client">${slot.client}</div>${slot.driver_name?`<div class="cal-event-time">🏍️ ${slot.driver_name}</div>`:''}`;
-  ev.onclick = () => alert(`📅 ${slot.client}\n📍 ${slot.address||'—'}\n📦 ${slot.product||'—'}\n🏍️ ${slot.driver_name||'Aucun livreur'}\n💰 ${slot.delivery_price||0}€`);
+  ev.style.height = '48px';
+  ev.innerHTML = `<div class="cal-event-time">${slot.time}</div><div class="cal-event-name">${slot.client}</div>${slot.driver_name?`<div class="cal-event-time">🏍️ ${slot.driver_name}</div>`:''}`;
+  ev.onclick = () => openCalSheet(slot);
   col.appendChild(ev);
+}
+
+// Sheet détail event calendrier admin
+let _calSlot = null;
+function openCalSheet(slot) {
+  _calSlot = slot;
+  document.getElementById('cs-title').textContent   = `📅 ${slot.date} à ${slot.time||'?'}`;
+  document.getElementById('cs-client').textContent  = slot.client;
+  document.getElementById('cs-product').textContent = slot.product||'—';
+  document.getElementById('cs-address').textContent = slot.address||'—';
+  document.getElementById('cs-notes').textContent   = slot.notes||'—';
+  document.getElementById('cs-driver').textContent  = slot.driver_name||'Aucun livreur';
+  document.getElementById('cs-price').textContent   = (slot.delivery_price||0)+'€';
+  document.getElementById('cs-dist').textContent    = (slot.distance_km||0)+' km';
+  const statusEl = document.getElementById('cs-status');
+  statusEl.textContent = slot.status==='delivered'?'✅ Livré':slot.driver_id?'🏍️ Assigné':'⏳ En attente';
+  statusEl.style.color = slot.status==='delivered'?'var(--g)':slot.driver_id?'var(--b)':'var(--y)';
+  document.getElementById('cal-sheet-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('cal-sheet').classList.add('open'),10);
+}
+function closeCalSheet() {
+  document.getElementById('cal-sheet').classList.remove('open');
+  document.getElementById('cal-sheet-overlay').classList.remove('open');
+  _calSlot=null;
 }
 
 function prevWeek() { weekOffset--; buildCalendar(); loadCalendar(); }
@@ -817,15 +932,22 @@ function nextWeek() { weekOffset++; buildCalendar(); loadCalendar(); }
 function goToday()  { weekOffset=0; buildCalendar(); loadCalendar(); }
 
 // ─── DRIVERS ─────────────────────────────────────────────────────────────────
+let _currentDriverId = null;
+
 async function loadDrivers() {
   const drivers = await apiFetch('/admin/drivers');
   const el = document.getElementById('drivers-list');
   if(!drivers.length) { el.innerHTML = '<div class="empty">Aucun livreur. Ajoute-en un !</div>'; return; }
   el.innerHTML = drivers.map(d => `
-    <div class="driver-card">
-      <div class="driver-avatar">${vehicleIcon(d.vehicle)}</div>
-      <div class="driver-name">${d.name}</div>
-      <div class="driver-tg">${d.telegram||'—'}</div>
+    <div class="driver-card" style="cursor:pointer;" onclick="openDriverStats('${d.id}')">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <div class="driver-avatar" style="margin-bottom:0;">${vehicleIcon(d.vehicle)}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="driver-name">${d.name}</div>
+          <div class="driver-tg">${d.telegram||'—'}</div>
+        </div>
+        <span style="font-size:11px;color:var(--tm);background:var(--yd);border-radius:999px;padding:3px 10px;font-weight:600;">Voir stats →</span>
+      </div>
       <div class="driver-info-row">
         <span class="driver-tag">${vehicleLabel(d.vehicle)}</span>
         <span class="driver-tag">⛽ ${d.consumption}L/100</span>
@@ -835,11 +957,45 @@ async function loadDrivers() {
         <div class="driver-code-lbl">Code d'accès</div>
         <div class="driver-code">${d.code}</div>
       </div>
-      <div class="driver-actions">
+      <div class="driver-actions" onclick="event.stopPropagation()">
         <button class="btn-xs" style="background:var(--bd);color:var(--b);flex:1;" onclick="copyCode('${d.code}')">📋 Copier</button>
         <button class="btn-xs" style="background:var(--rd);color:var(--r);" onclick="deleteDriver('${d.id}')">Supprimer</button>
       </div>
     </div>`).join('');
+}
+
+async function openDriverStats(driverId) {
+  _currentDriverId = driverId;
+  try {
+    const d = await apiFetch(`/admin/driver-stats?id=${driverId}`);
+    document.getElementById('ds-name').textContent    = d.driver.name;
+    document.getElementById('ds-vehicle').textContent = `${vehicleLabel(d.driver.vehicle)} · ${d.driver.consumption}L/100km`;
+    document.getElementById('ds-count').textContent   = d.deliveries;
+    document.getElementById('ds-dist').textContent    = (d.totalDistance||0)+' km';
+    document.getElementById('ds-net').textContent     = (d.netProfit||0)+'€';
+    document.getElementById('ds-owed').textContent    = (d.moneyOwed||0)+'€';
+    document.getElementById('ds-rev').textContent     = (d.deliveryRevenue||0)+'€';
+    document.getElementById('ds-fuel').textContent    = '−'+(d.fuelCost||0)+'€';
+    document.getElementById('ds-net2').textContent    = (d.netProfit||0)+'€';
+    document.getElementById('ds-owed2').textContent   = (d.moneyOwed||0)+'€';
+    const btn = document.getElementById('ds-reset-btn');
+    btn.style.display = d.moneyOwed > 0 ? '' : 'none';
+  } catch(e) {}
+  document.getElementById('driver-sheet-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('driver-sheet').classList.add('open'),10);
+}
+
+function closeDriverSheet() {
+  document.getElementById('driver-sheet').classList.remove('open');
+  document.getElementById('driver-sheet-overlay').classList.remove('open');
+  _currentDriverId = null;
+}
+
+async function resetDriverBalance() {
+  if(!_currentDriverId) return;
+  if(!confirm('Marquer le montant dû comme payé et remettre à zéro ?')) return;
+  await apiFetch('/admin/reset-balance', {method:'POST', body:JSON.stringify({id:_currentDriverId})});
+  await openDriverStats(_currentDriverId);
 }
 
 function vehicleIcon(v) { return v==='velo'?'🚴':v==='voiture'?'🚗':'🛵'; }
