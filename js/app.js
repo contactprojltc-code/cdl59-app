@@ -7,9 +7,13 @@ let deliveryPrice = 0;
 let deliveryAddress = '';
 let deliveryDistanceKm = 0;
 
+// Statut shop (chargé depuis le serveur)
+let shopStatus = { on: true, tank: true, bonbonne: true };
+
 const ORIGIN = [50.6292, 3.0573];
 const PRICE_PER_KM = 0.75;
 const API_URL = 'https://cdl59-bot-production.up.railway.app/order';
+const STATUS_URL = 'https://cdl59-bot-production.up.railway.app/status';
 const API_SECRET = 'cdl59-secret-2025';
 
 const PRODUCTS = {
@@ -41,12 +45,46 @@ const PRODUCTS = {
 
 // ── NAV ──
 function navigate(screen) {
+  // Si shop OFF, bloquer la navigation vers produits/panier
+  if (!shopStatus.on && (screen === 'produits' || screen === 'panier')) {
+    showShopClosed();
+    return;
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('screen-' + screen).classList.add('active');
   document.getElementById('nav-' + screen).classList.add('active');
   if (screen === 'accueil') startConfetti();
   else stopConfetti();
+}
+
+function showShopClosed() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-accueil').classList.add('active');
+  document.getElementById('nav-accueil').classList.add('active');
+  stopConfetti();
+
+  const hero = document.querySelector('.home-hero');
+  if (hero && !document.getElementById('shop-closed-banner')) {
+    const banner = document.createElement('div');
+    banner.id = 'shop-closed-banner';
+    banner.innerHTML = `
+      <div style="
+        background: linear-gradient(135deg,#1a0a0a,#2a0f0f);
+        border: 1px solid #ef4444;
+        border-radius: 16px;
+        margin: 16px;
+        padding: 24px 20px;
+        text-align: center;
+      ">
+        <div style="font-size:40px;margin-bottom:12px;">🔴</div>
+        <div style="font-size:18px;font-weight:700;color:#ef4444;margin-bottom:8px;">CDL est indisponible</div>
+        <div style="font-size:14px;color:#8a9bb0;line-height:1.5;">Le shop est momentanément fermé.<br>Revenez plus tard !</div>
+      </div>
+    `;
+    hero.after(banner);
+  }
 }
 
 // ── PRODUITS ──
@@ -119,7 +157,20 @@ function renderDeliveryBlock() {
 function renderProduct() {
   const p = PRODUCTS[currentProduct];
   const detail = document.getElementById('product-detail');
-  const canAdd = selectedOption !== null && (selectedDelivery === 'surplace' || deliveryPrice > 0);
+  const inStock = shopStatus[currentProduct] !== false;
+  const canAdd = inStock && selectedOption !== null && (selectedDelivery === 'surplace' || deliveryPrice > 0);
+
+  if (!inStock) {
+    detail.innerHTML = `
+      <div class="product-showcase">
+        <img src="${p.img}" alt="${p.name}" onerror="this.style.display='none'" style="opacity:0.4;filter:grayscale(1)">
+        <div class="product-name">${p.name}</div>
+        <div class="badge-row"><span class="badge" style="background:#ef4444;color:#fff">Rupture de stock</span></div>
+        <div class="product-desc" style="color:#ef4444">Ce produit est temporairement indisponible.<br>Revenez bientôt !</div>
+      </div>
+    `;
+    return;
+  }
 
   detail.innerHTML = `
     <div class="product-showcase">
@@ -151,12 +202,6 @@ function renderProduct() {
           : '🛒 Ajouter au panier'}
     </button>
   `;
-
-  // Re-focus input if livraison selected
-  if (selectedDelivery === 'livraison') {
-    const inp = document.getElementById('address-input');
-    if (inp && !deliveryAddress) inp.focus();
-  }
 }
 
 function selectOption(i) {
@@ -434,6 +479,10 @@ function renderCart() {
 
 async function sendOrder() {
   if (cart.length === 0) return;
+  if (!shopStatus.on) {
+    showToast('❌ Le shop est fermé pour le moment.');
+    return;
+  }
 
   // Récupérer infos utilisateur Telegram si dispo
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
@@ -567,11 +616,18 @@ function stopConfetti() {
 function launchConfetti() { startConfetti(); }
 
 // ── INIT ──
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   if (window.Telegram?.WebApp) {
     window.Telegram.WebApp.ready();
     window.Telegram.WebApp.expand();
   }
+
+  // Charger le statut du shop
+  try {
+    const res = await fetch(STATUS_URL);
+    if (res.ok) shopStatus = await res.json();
+  } catch (e) { /* si erreur réseau, shop considéré ouvert */ }
+
   renderProduct();
   renderCart();
   navigate('accueil');
