@@ -443,21 +443,6 @@ function openSheet(slot) {
   if (isTaken) tags += `<span class="sheet-tag tag-taken">🏍️ ${slot.driver_name}</span>`;
   document.getElementById('sh-tags').innerHTML = tags;
 
-  // Bouton maps sur l'adresse
-  const mapsHtml = slot.address ? `
-    <div class="sheet-field">
-      <label>Adresse</label>
-      <span>${slot.address}</span>
-      <div class="btn-maps-row" style="margin-top:8px;">
-        <button class="btn-map btn-waze" onclick="openMaps('${slot.address.replace(/'/g,"\\'")}','waze')"><span>🗺️</span>Waze</button>
-        <button class="btn-map btn-gmaps" onclick="openMaps('${slot.address.replace(/'/g,"\\'")}','gmaps')"><span>📍</span>Google</button>
-        <button class="btn-map btn-apple" onclick="openMaps('${slot.address.replace(/'/g,"\\'")}','apple')"><span>🍎</span>Plans</button>
-      </div>
-    </div>` : '';
-
-  document.getElementById('sh-address').closest('.sheet-field').style.display = 'none';
-  const mapsContainer = document.getElementById('sh-maps');
-  if (mapsContainer) mapsContainer.innerHTML = mapsHtml;
 
   // Action
   let action = '';
