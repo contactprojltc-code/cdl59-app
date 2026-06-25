@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>CDL59 · Admin</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
@@ -15,6 +15,7 @@
   --b:#3b82f6;--bd:rgba(59,130,246,.1);
   --t:#f1f5f9;--tm:#94a3b8;--ts:#475569;
   --w:220px;--rad:14px;--rad-sm:10px;
+  --bn-h:60px;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;}
 input,button,select,textarea{font-family:inherit;}
@@ -24,7 +25,6 @@ a{text-decoration:none;color:inherit;}
 /* ── LOGIN ── */
 #login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:999;padding:20px;}
 .login-wrap{width:100%;max-width:360px;}
-.login-glow{position:absolute;width:300px;height:300px;background:radial-gradient(circle,rgba(245,197,24,.08) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
 .login-card{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:40px 32px;position:relative;overflow:hidden;}
 .login-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,197,24,.03),transparent);pointer-events:none;}
 .login-icon{width:56px;height:56px;background:var(--yd);border:1px solid rgba(245,197,24,.2);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 20px;}
@@ -42,7 +42,7 @@ a{text-decoration:none;color:inherit;}
 #app{display:none;height:100vh;overflow:hidden;}
 .layout{display:flex;height:100%;}
 
-/* ── SIDEBAR ── */
+/* ── SIDEBAR (desktop) ── */
 .sidebar{width:var(--w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
 .sb-brand{padding:20px 18px 12px;display:flex;align-items:center;gap:10px;}
 .sb-logo{width:36px;height:36px;background:var(--yd);border:1px solid rgba(245,197,24,.25);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--y);}
@@ -50,7 +50,7 @@ a{text-decoration:none;color:inherit;}
 .sb-sub{font-size:11px;color:var(--tm);}
 .sb-divider{height:1px;background:var(--border);margin:6px 18px;}
 .sb-nav{padding:8px;}
-.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:500;color:var(--tm);transition:all .15s;margin-bottom:2px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:500;color:var(--tm);transition:all .15s;margin-bottom:2px;cursor:pointer;}
 .sb-item:hover{background:rgba(255,255,255,.04);color:var(--t);}
 .sb-item.active{background:var(--yd);color:var(--y);}
 .sb-item .icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
@@ -62,6 +62,9 @@ a{text-decoration:none;color:inherit;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
 .sb-logout{width:100%;background:none;border:1px solid var(--border);border-radius:10px;padding:8px;font-size:12px;color:var(--tm);transition:all .2s;}
 .sb-logout:hover{border-color:var(--r);color:var(--r);}
+
+/* ── BOTTOM NAV (mobile) ── */
+.bottom-nav{display:none;}
 
 /* ── MAIN ── */
 .main{flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;}
@@ -143,8 +146,10 @@ a{text-decoration:none;color:inherit;}
 .cal-nav{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
 .cal-nav-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--tm);transition:all .15s;}
 .cal-nav-btn:hover{border-color:var(--border2);color:var(--t);}
-.cal-week-label{font-size:15px;font-weight:700;flex:1;}
+.cal-week-label{font-size:14px;font-weight:700;flex:1;}
 .calendar{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;}
+.cal-scroll-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.cal-inner{min-width:600px;}
 .cal-header{display:grid;grid-template-columns:52px repeat(7,1fr);border-bottom:1px solid var(--border);}
 .cal-header-cell{padding:10px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--tm);}
 .cal-header-cell.today{color:var(--y);}
@@ -193,13 +198,14 @@ a{text-decoration:none;color:inherit;}
 .btn-save{background:var(--y);border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;color:#000;}
 
 /* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:480px;overflow:hidden;}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px 20px 0 0;width:100%;max-width:600px;overflow:hidden;animation:slideUp .25s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
 .modal-head{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;}
 .modal-title{font-size:17px;font-weight:800;}
 .modal-close{background:var(--card2);border:none;border-radius:8px;width:32px;height:32px;color:var(--tm);font-size:18px;display:flex;align-items:center;justify-content:center;}
-.modal-body{padding:20px 24px 24px;}
+.modal-body{padding:20px 24px calc(24px + env(safe-area-inset-bottom));}
 .modal-order-summary{background:var(--card2);border-radius:12px;padding:14px;margin-bottom:16px;}
 .modal-order-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:var(--tm);}
 .modal-order-row strong{color:var(--t);}
@@ -221,14 +227,81 @@ a{text-decoration:none;color:inherit;}
 
 /* ── MOBILE ── */
 @media(max-width:768px){
+  /* Hide sidebar, show bottom nav */
   .sidebar{display:none;}
-  .metrics{grid-template-columns:1fr 1fr;}
+  .bottom-nav{
+    display:flex;
+    position:fixed;
+    bottom:0;left:0;right:0;
+    background:var(--surface);
+    border-top:1px solid var(--border);
+    padding-bottom:env(safe-area-inset-bottom);
+    z-index:100;
+  }
+  .bn-item{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:10px 0 8px;gap:3px;font-size:10px;font-weight:600;color:var(--tm);
+    cursor:pointer;transition:color .15s;position:relative;
+  }
+  .bn-item.active{color:var(--y);}
+  .bn-icon{font-size:20px;line-height:1;}
+  .bn-badge{position:absolute;top:6px;right:calc(50% - 16px);background:var(--y);color:#000;font-size:9px;font-weight:800;border-radius:999px;padding:1px 5px;display:none;}
+
+  /* Layout */
+  #app{height:auto;overflow:auto;}
+  .layout{flex-direction:column;min-height:100vh;}
+  .main{overflow:visible;}
+
+  /* Topbar */
+  .topbar{padding:12px 16px;}
+  .page-title{font-size:16px;}
+  .page-sub{display:none;}
+  .live-chip span:last-child{display:none;}
+
+  /* Content */
+  .content{
+    padding:16px 16px calc(var(--bn-h) + env(safe-area-inset-bottom) + 16px);
+  }
+
+  /* Metrics: 2 colonnes */
+  .metrics{grid-template-columns:1fr 1fr;gap:10px;}
+  .metric{padding:14px;}
+  .metric-val{font-size:22px;}
+  .metric-icon{font-size:18px;margin-bottom:8px;}
+
+  /* Dashboard bottom row: stack */
+  .dash-bottom-row{grid-template-columns:1fr !important;}
+
+  /* Orders: hide status pill on tiny screens */
+  .order-time{display:none;}
   .detail-grid{grid-template-columns:1fr;}
+
+  /* Filter bar: scroll horizontally */
+  .filter-row{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+  .filter-row label{white-space:nowrap;flex-shrink:0;}
+  .filter-row .inp{flex-shrink:0;min-width:110px;}
+  .filter-row .btn-sm{flex-shrink:0;}
+
+  /* Calendar: horizontal scroll */
+  .cal-nav{flex-wrap:wrap;gap:8px;}
+  .cal-week-label{font-size:13px;}
+  .cal-scroll-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--rad);}
+  .cal-inner{min-width:580px;}
+  .cal-body{max-height:380px;}
+
+  /* Drivers */
+  .drivers-grid{grid-template-columns:1fr;}
+
+  /* Form grid: 1 col */
   .form-grid{grid-template-columns:1fr;}
   .modal-form{grid-template-columns:1fr;}
-  .drivers-grid{grid-template-columns:1fr;}
-  .content{padding:16px;}
-  .cal-body{max-height:400px;}
+
+  /* Modal bottom sheet */
+  .modal-overlay{align-items:flex-end;}
+  .modal{border-radius:20px 20px 0 0;max-width:100%;}
+
+  /* Order actions: full width buttons */
+  .btn-action{flex:1;justify-content:center;}
 }
 </style>
 </head>
@@ -256,7 +329,7 @@ a{text-decoration:none;color:inherit;}
 <div id="app">
 <div class="layout">
 
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR (desktop) -->
   <aside class="sidebar">
     <div class="sb-brand">
       <div class="sb-logo">C</div>
@@ -264,10 +337,10 @@ a{text-decoration:none;color:inherit;}
     </div>
     <div class="sb-divider"></div>
     <nav class="sb-nav">
-      <div class="sb-item active" onclick="nav('dashboard')"><span class="icon">📊</span>Dashboard<span class="sb-badge" id="badge-orders" style="display:none">0</span></div>
-      <div class="sb-item" onclick="nav('orders')"><span class="icon">📋</span>Commandes</div>
-      <div class="sb-item" onclick="nav('agenda')"><span class="icon">📅</span>Agenda</div>
-      <div class="sb-item" onclick="nav('drivers')"><span class="icon">🏍️</span>Livreurs</div>
+      <div class="sb-item active" data-page="dashboard" onclick="nav('dashboard')"><span class="icon">📊</span>Dashboard<span class="sb-badge" id="badge-orders" style="display:none">0</span></div>
+      <div class="sb-item" data-page="orders" onclick="nav('orders')"><span class="icon">📋</span>Commandes</div>
+      <div class="sb-item" data-page="agenda" onclick="nav('agenda')"><span class="icon">📅</span>Agenda</div>
+      <div class="sb-item" data-page="drivers" onclick="nav('drivers')"><span class="icon">🏍️</span>Livreurs</div>
     </nav>
     <div class="sb-footer">
       <div class="sb-status">
@@ -296,29 +369,29 @@ a{text-decoration:none;color:inherit;}
         <div class="metric yellow">
           <div class="metric-icon">📦</div>
           <div class="metric-val" id="d-orders">—</div>
-          <div class="metric-lbl">Commandes aujourd'hui</div>
+          <div class="metric-lbl">Commandes</div>
           <div class="metric-sub" id="d-orders-sub"></div>
         </div>
         <div class="metric green">
           <div class="metric-icon">💰</div>
           <div class="metric-val" id="d-revenue">—</div>
-          <div class="metric-lbl">Revenus aujourd'hui</div>
+          <div class="metric-lbl">Revenus</div>
           <div class="metric-sub" id="d-revenue-sub"></div>
         </div>
         <div class="metric blue">
           <div class="metric-icon">🛵</div>
           <div class="metric-val" id="d-delivery">—</div>
-          <div class="metric-lbl">Frais livraison</div>
+          <div class="metric-lbl">Livraison</div>
           <div class="metric-sub" id="d-delivery-sub"></div>
         </div>
         <div class="metric red">
           <div class="metric-icon">👥</div>
           <div class="metric-val" id="d-active">—</div>
-          <div class="metric-lbl">Actifs maintenant</div>
+          <div class="metric-lbl">Actifs</div>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+      <div class="dash-bottom-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
         <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:16px;">
           <div class="section-title" style="margin-bottom:12px;">Par produit</div>
           <div class="breakdown-row"><span>🟡 TANK 2000g</span><span class="breakdown-val" id="d-tank">—</span></div>
@@ -340,7 +413,7 @@ a{text-decoration:none;color:inherit;}
         <label>Du</label><input type="date" id="o-from" class="inp">
         <label>au</label><input type="date" id="o-to" class="inp">
         <button class="btn-sm btn-yellow" onclick="loadOrders()">Filtrer</button>
-        <button class="btn-sm btn-ghost" onclick="setToday('o-from','o-to');loadOrders()">Aujourd'hui</button>
+        <button class="btn-sm btn-ghost" onclick="setToday('o-from','o-to');loadOrders()">Auj.</button>
         <button class="btn-sm btn-ghost" onclick="setRange('o-from','o-to',7);loadOrders()">7j</button>
         <button class="btn-sm btn-ghost" onclick="setRange('o-from','o-to',30);loadOrders()">30j</button>
       </div>
@@ -356,13 +429,17 @@ a{text-decoration:none;color:inherit;}
         <button class="cal-nav-btn" onclick="prevWeek()">‹</button>
         <span class="cal-week-label" id="week-label"></span>
         <button class="cal-nav-btn" onclick="nextWeek()">›</button>
-        <button class="btn-sm btn-ghost" onclick="goToday()" style="margin-left:4px;">Aujourd'hui</button>
+        <button class="btn-sm btn-ghost" onclick="goToday()">Auj.</button>
       </div>
       <div class="calendar">
-        <div class="cal-header" id="cal-header"></div>
-        <div class="cal-body">
-          <div class="cal-time-col" id="cal-times"></div>
-          <div id="cal-days" style="display:contents;"></div>
+        <div class="cal-scroll-wrap">
+          <div class="cal-inner">
+            <div class="cal-header" id="cal-header"></div>
+            <div class="cal-body">
+              <div class="cal-time-col" id="cal-times"></div>
+              <div id="cal-days" style="display:contents;"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -400,10 +477,31 @@ a{text-decoration:none;color:inherit;}
     </div>
   </main>
 </div>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <div class="bn-item active" id="bn-dashboard" onclick="nav('dashboard')">
+    <span class="bn-icon">📊</span>
+    <span>Dashboard</span>
+    <span class="bn-badge" id="bn-badge-orders">0</span>
+  </div>
+  <div class="bn-item" id="bn-orders" onclick="nav('orders')">
+    <span class="bn-icon">📋</span>
+    <span>Commandes</span>
+  </div>
+  <div class="bn-item" id="bn-agenda" onclick="nav('agenda')">
+    <span class="bn-icon">📅</span>
+    <span>Agenda</span>
+  </div>
+  <div class="bn-item" id="bn-drivers" onclick="nav('drivers')">
+    <span class="bn-icon">🏍️</span>
+    <span>Livreurs</span>
+  </div>
+</nav>
 </div>
 
 <!-- ══ MODAL PLANIFIER ══ -->
-<div class="modal-overlay" id="plan-modal">
+<div class="modal-overlay" id="plan-modal" onclick="if(event.target===this)closePlanModal()">
   <div class="modal">
     <div class="modal-head">
       <span class="modal-title">📅 Planifier la livraison</span>
@@ -430,6 +528,7 @@ let secret = '';
 let planOrder = null;
 let weekOffset = 0;
 const _ordersMap = {};
+const PAGES = ['dashboard','orders','agenda','drivers'];
 
 // ─── LOGIN ───────────────────────────────────────────────────────────────────
 function tryLogin() {
@@ -460,11 +559,22 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ─── NAV ─────────────────────────────────────────────────────────────────────
-const pageTitles = { dashboard:['Dashboard','Vue d\'ensemble du shop'], orders:['Commandes','Historique et gestion'], agenda:['Agenda','Planning des livraisons'], drivers:['Livreurs','Gestion de l\'équipe'] };
+const pageTitles = {
+  dashboard: ['Dashboard','Vue d\'ensemble du shop'],
+  orders:    ['Commandes','Historique et gestion'],
+  agenda:    ['Agenda','Planning des livraisons'],
+  drivers:   ['Livreurs','Gestion de l\'équipe']
+};
+
 function nav(p) {
-  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  ['dashboard','orders','agenda','drivers'].forEach(n => document.getElementById('page-'+n).style.display = n===p?'':'none');
+  // Sidebar
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.toggle('active', i.dataset.page===p));
+  // Bottom nav
+  PAGES.forEach(n => {
+    const bn = document.getElementById('bn-'+n);
+    if (bn) bn.classList.toggle('active', n===p);
+    document.getElementById('page-'+n).style.display = n===p ? '' : 'none';
+  });
   const [t,s] = pageTitles[p];
   document.getElementById('page-title').textContent = t;
   document.getElementById('page-sub').textContent = s;
@@ -492,6 +602,8 @@ async function liveUpdate() {
     const n = r.ordersCount ?? 0;
     const b = document.getElementById('badge-orders');
     b.textContent = n; b.style.display = n>0?'':'none';
+    const bnb = document.getElementById('bn-badge-orders');
+    bnb.textContent = n; bnb.style.display = n>0?'':'none';
   } catch(e) {}
 }
 
@@ -511,17 +623,14 @@ async function loadDashboard() {
   document.getElementById('d-revenue').textContent   = (today.productRevenue||0)+'€';
   document.getElementById('d-delivery').textContent  = (today.deliveryRevenue||0)+'€';
   document.getElementById('d-active').textContent    = today.activeUsers??0;
-  document.getElementById('d-orders-sub').textContent= `${today.livraisonCount} livraisons · ${today.surplaceCount} sur place`;
-  document.getElementById('d-revenue-sub').textContent= `Total encaissé : ${today.totalRevenue??0}€`;
+  document.getElementById('d-orders-sub').textContent= `${today.livraisonCount} livr · ${today.surplaceCount} place`;
+  document.getElementById('d-revenue-sub').textContent= `Total: ${today.totalRevenue??0}€`;
   document.getElementById('d-delivery-sub').textContent= `${today.livraisonCount} course(s)`;
   document.getElementById('d-tank').textContent      = today.tankCount+' cmd';
   document.getElementById('d-bonbonne').textContent  = today.bonbonneCount+' cmd';
 
-  // Week chart
   const week = await apiFetch(`/admin/stats?from=${daysAgo(6)}&to=${t}`);
   buildMiniChart(week.orders||[], daysAgo(6), t);
-
-  // Recent orders
   renderOrderList(document.getElementById('recent-orders'), (today.orders||[]).slice(0,5), true);
 }
 
@@ -565,7 +674,7 @@ function renderOrderList(container, orders, compact) {
         </div>
         <div class="order-right">
           <span class="order-amount">${prodRev}€</span>
-          <span class="status-pill ${o.status==='delivered'?'pill-delivered':'pill-pending'}">${o.status==='delivered'?'✅ Livré':'⏳ Att.'}</span>
+          <span class="status-pill ${o.status==='delivered'?'pill-delivered':'pill-pending'}">${o.status==='delivered'?'✅':'⏳'}</span>
           <button class="order-expand" id="exp-${o.id}">›</button>
         </div>
       </div>
@@ -581,9 +690,9 @@ function renderOrderList(container, orders, compact) {
           ${isLiv?`<div class="detail-field"><label>Livraison</label><span>${o.distanceKm||0} km · ${o.deliveryPrice||0}€</span></div>`:''}
         </div>
         <div class="detail-actions">
-          ${isLiv?`<button class="btn-action btn-plan" onclick="openPlanModal('${o.id}')">📅 Planifier livraison</button>`:''}
+          ${isLiv?`<button class="btn-action btn-plan" onclick="openPlanModal('${o.id}')">📅 Planifier</button>`:''}
           <button class="btn-action btn-done" onclick="setOrderStatus('${o.id}','${o.status==='delivered'?'pending':'delivered'}')">
-            ${o.status==='delivered'?'↩ Réouvrir':'✅ Marquer livré'}
+            ${o.status==='delivered'?'↩ Réouvrir':'✅ Livré'}
           </button>
         </div>
       </div>
@@ -598,7 +707,7 @@ function toggleOrder(id) {
   e.textContent = open ? '⌄' : '›';
 }
 
-async function setOrderStatus(id, status, rowId) {
+async function setOrderStatus(id, status) {
   await apiFetch('/admin/order-status', {method:'POST', body:JSON.stringify({id, status})});
   loadOrders();
 }
@@ -608,13 +717,12 @@ function openPlanModal(orderId) {
   planOrder = _ordersMap[orderId];
   if (!planOrder) return;
   const o = planOrder;
-  const s = document.getElementById('modal-summary');
-  s.innerHTML = `
+  document.getElementById('modal-summary').innerHTML = `
     <div class="modal-order-row"><span>Client</span><strong>${o.username}</strong></div>
     <div class="modal-order-row"><span>Produit</span><strong>${o.name} — ${o.option}</strong></div>
     <div class="modal-order-row"><span>Adresse</span><strong>${o.deliveryAddress||'—'}</strong></div>
     <div class="modal-order-row"><span>Distance</span><strong>${o.distanceKm||0} km</strong></div>
-    <div class="modal-order-row"><span>Frais livraison</span><strong style="color:var(--y)">${o.deliveryPrice||0}€</strong></div>`;
+    <div class="modal-order-row"><span>Livraison</span><strong style="color:var(--y)">${o.deliveryPrice||0}€</strong></div>`;
   document.getElementById('m-date').value = todayStr();
   document.getElementById('m-time').value = '';
   document.getElementById('m-notes').value = '';
@@ -638,18 +746,11 @@ async function confirmPlan() {
   };
   await apiFetch('/admin/schedule', {method:'POST', body:JSON.stringify(slot)});
   closePlanModal();
-  buildCalendar(); loadCalendar();
-  nav_noEvent('agenda');
-}
-function nav_noEvent(p) {
-  document.querySelectorAll('.sb-item').forEach((i,idx) => i.classList.toggle('active',['dashboard','orders','agenda','drivers'][idx]===p));
-  ['dashboard','orders','agenda','drivers'].forEach(n => document.getElementById('page-'+n).style.display = n===p?'':'none');
-  const [t,s] = pageTitles[p]; document.getElementById('page-title').textContent=t; document.getElementById('page-sub').textContent=s;
-  if(p==='agenda'){buildCalendar();loadCalendar();}
+  nav('agenda');
 }
 
 // ─── CALENDAR ────────────────────────────────────────────────────────────────
-const HOURS = Array.from({length:15},(_,i)=>i+8); // 8h→22h
+const HOURS = Array.from({length:15},(_,i)=>i+8);
 const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 
 function getWeekDates() {
@@ -662,11 +763,10 @@ function getWeekDates() {
 function buildCalendar() {
   const dates = getWeekDates();
   const today = todayStr();
-  const firstDay = dates[0].toLocaleDateString('fr-FR',{day:'numeric',month:'long'});
-  const lastDay  = dates[6].toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+  const firstDay = dates[0].toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  const lastDay  = dates[6].toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
   document.getElementById('week-label').textContent = `${firstDay} – ${lastDay}`;
 
-  // Header
   const hdr = document.getElementById('cal-header');
   hdr.innerHTML = '<div class="cal-header-cell"></div>' + dates.map(d => {
     const iso = d.toISOString().slice(0,10);
@@ -677,10 +777,8 @@ function buildCalendar() {
     </div>`;
   }).join('');
 
-  // Time column
-  document.getElementById('cal-times').innerHTML = HOURS.map(h => `<div class="cal-time-slot">${h}:00</div>`).join('');
+  document.getElementById('cal-times').innerHTML = HOURS.map(h => `<div class="cal-time-slot">${h}h</div>`).join('');
 
-  // Day columns (placeholder)
   const daysEl = document.getElementById('cal-days');
   daysEl.innerHTML = dates.map(d => `<div class="cal-day-col" id="day-${d.toISOString().slice(0,10)}">
     ${HOURS.map(()=>'<div class="cal-hour-line"></div>').join('')}
@@ -689,16 +787,11 @@ function buildCalendar() {
 
 async function loadCalendar() {
   const dates = getWeekDates();
-  const from = dates[0].toISOString().slice(0,10);
-  const to   = dates[6].toISOString().slice(0,10);
   try {
-    const data = await apiFetch(`/admin/stats?from=${from}&to=${to}`);
     const slots = await Promise.all(dates.map(d => apiFetch(`/admin/schedule?date=${d.toISOString().slice(0,10)}`).catch(()=>[])));
-    // Clear events
     document.querySelectorAll('.cal-event').forEach(e => e.remove());
     slots.forEach((daySlots,i) => {
-      const dateStr = dates[i].toISOString().slice(0,10);
-      const col = document.getElementById('day-'+dateStr);
+      const col = document.getElementById('day-'+dates[i].toISOString().slice(0,10));
       if(!col) return;
       daySlots.forEach(slot => placeEvent(col, slot));
     });
@@ -716,7 +809,7 @@ function placeEvent(col, slot) {
   ev.style.top = top+'px';
   ev.style.height = '52px';
   ev.innerHTML = `<div class="cal-event-time">${slot.time}</div><div class="cal-event-client">${slot.client}</div>${slot.driver_name?`<div class="cal-event-time">🏍️ ${slot.driver_name}</div>`:''}`;
-  ev.onclick = () => alert(`📅 ${slot.client}\n📍 ${slot.address||'—'}\n📦 ${slot.product||'—'}\n🏍️ ${slot.driver_name||'Aucun livreur'}\n💰 Livraison: ${slot.delivery_price||0}€`);
+  ev.onclick = () => alert(`📅 ${slot.client}\n📍 ${slot.address||'—'}\n📦 ${slot.product||'—'}\n🏍️ ${slot.driver_name||'Aucun livreur'}\n💰 ${slot.delivery_price||0}€`);
   col.appendChild(ev);
 }
 
@@ -725,13 +818,11 @@ function nextWeek() { weekOffset++; buildCalendar(); loadCalendar(); }
 function goToday()  { weekOffset=0; buildCalendar(); loadCalendar(); }
 
 // ─── DRIVERS ─────────────────────────────────────────────────────────────────
-let driversCache = [];
-
 async function loadDrivers() {
-  driversCache = await apiFetch('/admin/drivers');
+  const drivers = await apiFetch('/admin/drivers');
   const el = document.getElementById('drivers-list');
-  if(!driversCache.length) { el.innerHTML = '<div class="empty">Aucun livreur. Ajoute-en un !</div>'; return; }
-  el.innerHTML = driversCache.map(d => `
+  if(!drivers.length) { el.innerHTML = '<div class="empty">Aucun livreur. Ajoute-en un !</div>'; return; }
+  el.innerHTML = drivers.map(d => `
     <div class="driver-card">
       <div class="driver-avatar">${vehicleIcon(d.vehicle)}</div>
       <div class="driver-name">${d.name}</div>
@@ -754,7 +845,7 @@ async function loadDrivers() {
 
 function vehicleIcon(v) { return v==='velo'?'🚴':v==='voiture'?'🚗':'🛵'; }
 function vehicleLabel(v) { return v==='velo'?'Vélo':v==='voiture'?'Voiture':'Scooter'; }
-function copyCode(c) { navigator.clipboard?.writeText(c); alert(`Code copié : ${c}\n\nPartage-le avec ton livreur via Telegram.`); }
+function copyCode(c) { navigator.clipboard?.writeText(c); alert(`Code copié : ${c}\n\nPartage-le avec ton livreur.`); }
 
 function toggleDriverForm() { document.getElementById('driver-form').classList.toggle('open'); }
 function genCode() {
