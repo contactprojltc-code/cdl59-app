@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CDL59 · Livreur</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+:root{
+  --bg:#05080f;--surface:#0b0f1a;--card:#0f1624;--card2:#141d2e;
+  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.12);
+  --y:#f5c518;--yd:rgba(245,197,24,.1);--yb:rgba(245,197,24,.18);
+  --g:#10b981;--gd:rgba(16,185,129,.1);
+  --r:#ef4444;--rd:rgba(239,68,68,.08);
+  --t:#f1f5f9;--tm:#94a3b8;--ts:#475569;
+  --rad:14px;--rad-sm:10px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;}
+input,button{font-family:inherit;cursor:pointer;}
+
+/* ── LOGIN ── */
+#login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:999;padding:20px;}
+.login-card{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:40px 28px;width:100%;max-width:340px;position:relative;overflow:hidden;}
+.login-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,197,24,.03),transparent);pointer-events:none;}
+.login-icon{width:52px;height:52px;background:var(--yd);border:1px solid rgba(245,197,24,.2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px;}
+.login-title{text-align:center;font-size:19px;font-weight:800;margin-bottom:3px;}
+.login-sub{text-align:center;font-size:13px;color:var(--tm);margin-bottom:24px;}
+.field label{display:block;font-size:12px;color:var(--tm);margin-bottom:5px;font-weight:600;}
+.field input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--t);font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;text-align:center;outline:none;transition:border .2s;margin-bottom:12px;}
+.field input:focus{border-color:var(--y);}
+.btn-primary{width:100%;background:var(--y);color:#000;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;}
+.login-err{color:var(--r);font-size:12px;text-align:center;margin-top:10px;display:none;}
+
+/* ── APP ── */
+#app{display:none;min-height:100vh;padding-bottom:80px;}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.header-info{display:flex;flex-direction:column;}
+.header-name{font-size:15px;font-weight:800;}
+.header-vehicle{font-size:12px;color:var(--tm);}
+.header-logout{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--tm);}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:50;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;font-size:10px;color:var(--ts);font-weight:600;transition:color .15s;}
+.nav-item.active{color:var(--y);}
+.nav-item .icon{font-size:20px;margin-bottom:2px;}
+
+/* ── CONTENT ── */
+.page{display:none;padding:16px;}
+.page.active{display:block;}
+
+/* ── STATS CARDS ── */
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:14px 16px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.yellow::before{background:var(--y);}
+.stat-card.green::before{background:var(--g);}
+.stat-card.blue::before{background:#3b82f6;}
+.stat-card.red::before{background:var(--r);}
+.stat-val{font-size:22px;font-weight:800;margin-bottom:2px;}
+.stat-lbl{font-size:11px;color:var(--tm);}
+.stat-sub{font-size:11px;color:var(--ts);margin-top:3px;}
+
+/* ── SECTION ── */
+.section-title{font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+
+/* ── DELIVERY CARDS ── */
+.delivery-list{display:flex;flex-direction:column;gap:8px;}
+.delivery-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;transition:border .15s;}
+.delivery-card:hover{border-color:var(--border2);}
+.delivery-card.taken{border-color:rgba(16,185,129,.3);}
+.delivery-card.mine{border-color:rgba(245,197,24,.25);}
+.delivery-card.delivered{opacity:.5;}
+.delivery-head{padding:14px;}
+.delivery-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.delivery-client{font-size:15px;font-weight:800;}
+.delivery-time{font-size:13px;font-weight:700;color:var(--y);background:var(--yd);padding:3px 10px;border-radius:999px;}
+.delivery-product{font-size:13px;color:var(--tm);margin-bottom:4px;}
+.delivery-address{font-size:13px;color:var(--t);display:flex;align-items:flex-start;gap:5px;}
+.delivery-address .pin{color:var(--r);flex-shrink:0;}
+.delivery-meta{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.delivery-tag{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:600;}
+.tag-km{background:rgba(59,130,246,.1);color:#60a5fa;}
+.tag-price{background:var(--yd);color:var(--y);}
+.tag-taken{background:var(--gd);color:var(--g);}
+.tag-mine{background:var(--yb);color:var(--y);}
+.delivery-actions{padding:0 14px 14px;display:flex;gap:8px;}
+.btn-take{flex:1;background:var(--y);border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:700;color:#000;}
+.btn-done{flex:1;background:var(--gd);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:11px;font-size:13px;font-weight:700;color:var(--g);}
+.btn-taken-label{flex:1;background:var(--gd);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:13px;font-weight:600;color:var(--g);text-align:center;cursor:default;}
+
+/* ── FINANCE BREAKDOWN ── */
+.finance-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:16px;margin-bottom:12px;}
+.finance-title{font-size:12px;font-weight:700;color:var(--ts);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;}
+.finance-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.finance-row:last-child{border-bottom:none;font-weight:700;font-size:14px;}
+.finance-val{font-weight:700;}
+.val-green{color:var(--g);}
+.val-yellow{color:var(--y);}
+.val-red{color:var(--r);}
+
+/* ── CALENDAR AGENDA ── */
+.cal-nav{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.cal-nav-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--tm);}
+.cal-week-label{font-size:14px;font-weight:700;flex:1;text-align:center;}
+.cal-days-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px;}
+.cal-day-pill{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;cursor:pointer;transition:all .15s;}
+.cal-day-pill.active{background:var(--yd);border-color:rgba(245,197,24,.3);}
+.cal-day-pill.has-delivery{border-color:rgba(245,197,24,.2);}
+.cal-day-name{font-size:10px;color:var(--ts);font-weight:600;}
+.cal-day-num{font-size:16px;font-weight:800;margin-top:2px;}
+.cal-day-dot{width:5px;height:5px;border-radius:50%;background:var(--y);margin:3px auto 0;}
+.cal-day-pill.active .cal-day-name{color:var(--y);}
+.cal-day-pill.active .cal-day-num{color:var(--y);}
+.empty{text-align:center;padding:40px 20px;color:var(--ts);font-size:13px;}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login">
+  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(245,197,24,.05),transparent 60%);pointer-events:none;"></div>
+  <div class="login-card">
+    <div class="login-icon">🏍️</div>
+    <div class="login-title">Portail Livreur</div>
+    <div class="login-sub">CDL59 — Espace livraison</div>
+    <div class="field">
+      <label>Ton code d'accès</label>
+      <input id="code-inp" type="text" placeholder="CDL-XXXX" maxlength="8"
+        oninput="this.value=this.value.toUpperCase()"
+        onkeydown="if(event.key==='Enter')tryDriverLogin()">
+    </div>
+    <button class="btn-primary" onclick="tryDriverLogin()">Accéder →</button>
+    <div id="login-err" class="login-err">Code invalide. Vérifie auprès de l'admin.</div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+  <div class="header">
+    <div class="header-info">
+      <div class="header-name" id="h-name">—</div>
+      <div class="header-vehicle" id="h-vehicle">—</div>
+    </div>
+    <button class="header-logout" onclick="logout()">Déconnexion</button>
+  </div>
+
+  <!-- Page Agenda -->
+  <div id="page-agenda" class="page active">
+    <div class="cal-nav" style="margin-top:16px;">
+      <button class="cal-nav-btn" onclick="prevWeek()">‹</button>
+      <span class="cal-week-label" id="week-lbl"></span>
+      <button class="cal-nav-btn" onclick="nextWeek()">›</button>
+    </div>
+    <div class="cal-days-strip" id="days-strip"></div>
+    <div class="section-title" id="agenda-day-title">Livraisons</div>
+    <div class="delivery-list" id="agenda-list"></div>
+  </div>
+
+  <!-- Page Mes Livraisons -->
+  <div id="page-mes" class="page">
+    <div style="padding-top:16px;">
+      <div class="section-title">Mes livraisons assignées</div>
+      <div class="delivery-list" id="mes-list"></div>
+    </div>
+  </div>
+
+  <!-- Page Stats -->
+  <div id="page-stats" class="page">
+    <div style="padding-top:16px;">
+      <div class="stats-row">
+        <div class="stat-card yellow">
+          <div class="stat-val" id="s-count">—</div>
+          <div class="stat-lbl">Livraisons</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-val" id="s-dist">—</div>
+          <div class="stat-lbl">km total</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-val" id="s-net">—</div>
+          <div class="stat-lbl">Bénéfice net</div>
+          <div class="stat-sub">Après essence</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-val" id="s-owed">—</div>
+          <div class="stat-lbl">À reverser</div>
+          <div class="stat-sub">Au shop</div>
+        </div>
+      </div>
+
+      <div class="finance-card">
+        <div class="finance-title">Détail financier</div>
+        <div class="finance-row"><span>💰 Revenus livraisons</span><span class="finance-val val-yellow" id="f-rev">—</span></div>
+        <div class="finance-row"><span>📏 Distance totale</span><span class="finance-val" id="f-dist">—</span></div>
+        <div class="finance-row"><span>⛽ Coût essence (1,98€/L)</span><span class="finance-val val-red" id="f-fuel">—</span></div>
+        <div class="finance-row"><span>🏆 Bénéfice net</span><span class="finance-val val-green" id="f-net">—</span></div>
+        <div class="finance-row"><span>🏪 Montant à reverser</span><span class="finance-val val-red" id="f-owed">—</span></div>
+      </div>
+
+      <div class="section-title">Mes livraisons</div>
+      <div class="delivery-list" id="stats-list"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="nav-agenda" onclick="switchPage('agenda')">
+      <span class="icon">📅</span>Agenda
+    </div>
+    <div class="nav-item" id="nav-mes" onclick="switchPage('mes')">
+      <span class="icon">🏍️</span>Mes livraisons
+    </div>
+    <div class="nav-item" id="nav-stats" onclick="switchPage('stats')">
+      <span class="icon">📊</span>Mes stats
+    </div>
+  </nav>
+</div>
+
+<script>
+const API = 'https://cdl59-bot-production.up.railway.app';
+let driverCode = '';
+let driverInfo = {};
+let weekOffset = 0;
+let selectedDate = new Date().toISOString().slice(0,10);
+
+// ─── LOGIN ────────────────────────────────────────────────────────────────────
+async function tryDriverLogin() {
+  const code = document.getElementById('code-inp').value.trim().toUpperCase();
+  if (!code) return;
+  try {
+    const r = await fetch(`${API}/driver/auth`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({code})
+    });
+    if (r.ok) {
+      const data = await r.json();
+      driverCode = code;
+      driverInfo = data.driver;
+      sessionStorage.setItem('cdl_driver_code', code);
+      initDriver();
+    } else {
+      showErr();
+    }
+  } catch(e) { showErr(); }
+}
+
+function showErr() {
+  const e = document.getElementById('login-err');
+  e.style.display = 'block';
+}
+
+function logout() {
+  sessionStorage.removeItem('cdl_driver_code');
+  location.reload();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = sessionStorage.getItem('cdl_driver_code');
+  if (saved) {
+    document.getElementById('code-inp').value = saved;
+    tryDriverLogin();
+  }
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function vehicleIcon(v) { return v==='velo'?'🚴':v==='voiture'?'🚗':'🛵'; }
+function vehicleLabel(v) { return v==='velo'?'Vélo':v==='voiture'?'Voiture':'Scooter'; }
+
+function initDriver() {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('h-name').textContent = vehicleIcon(driverInfo.vehicle) + ' ' + driverInfo.name;
+  document.getElementById('h-vehicle').textContent = vehicleLabel(driverInfo.vehicle) + ' · ' + driverInfo.consumption + 'L/100';
+  buildWeek();
+  loadStats();
+}
+
+// ─── NAV ──────────────────────────────────────────────────────────────────────
+function switchPage(p) {
+  ['agenda','mes','stats'].forEach(n => {
+    document.getElementById('page-'+n).classList.toggle('active', n===p);
+    document.getElementById('nav-'+n).classList.toggle('active', n===p);
+  });
+  if (p==='mes') loadMes();
+  if (p==='stats') loadStats();
+}
+
+// ─── DATES ────────────────────────────────────────────────────────────────────
+const DAYS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+function todayStr() { return new Date().toISOString().slice(0,10); }
+
+function getWeekDates() {
+  const d = new Date(); d.setDate(d.getDate() + weekOffset*7);
+  const day = d.getDay(); const diff = day===0?-6:1-day;
+  const mon = new Date(d); mon.setDate(d.getDate()+diff);
+  return Array.from({length:7},(_,i)=>{ const x=new Date(mon); x.setDate(mon.getDate()+i); return x; });
+}
+
+function fmtTime(t) { return t||'—'; }
+
+// ─── WEEK STRIP ───────────────────────────────────────────────────────────────
+let weekSlots = {};
+
+async function buildWeek() {
+  const dates = getWeekDates();
+  const from = dates[0].toISOString().slice(0,10);
+  const to   = dates[6].toISOString().slice(0,10);
+  const mon = dates[0].toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  const sun = dates[6].toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  document.getElementById('week-lbl').textContent = `${mon} – ${sun}`;
+
+  // Fetch all slots for the week
+  try {
+    const r = await fetch(`${API}/driver/week?code=${driverCode}&from=${from}&to=${to}`);
+    const data = await r.json();
+    const slots = data.slots || [];
+    weekSlots = {};
+    slots.forEach(s => { if(!weekSlots[s.date]) weekSlots[s.date]=0; weekSlots[s.date]++; });
+  } catch(e) { weekSlots = {}; }
+
+  const strip = document.getElementById('days-strip');
+  strip.innerHTML = dates.map(d => {
+    const iso = d.toISOString().slice(0,10);
+    const isToday = iso===todayStr();
+    const isSel = iso===selectedDate;
+    const hasDel = weekSlots[iso]>0;
+    return `<div class="cal-day-pill${isSel?' active':''}${hasDel?' has-delivery':''}" onclick="selectDay('${iso}')">
+      <div class="cal-day-name">${DAYS[d.getDay()===0?6:d.getDay()-1]}</div>
+      <div class="cal-day-num">${d.getDate()}</div>
+      ${hasDel?'<div class="cal-day-dot"></div>':''}
+    </div>`;
+  }).join('');
+
+  loadAgendaDay(selectedDate);
+}
+
+function selectDay(iso) {
+  selectedDate = iso;
+  buildWeek();
+}
+
+function prevWeek() { weekOffset--; buildWeek(); }
+function nextWeek() { weekOffset++; buildWeek(); }
+
+// ─── AGENDA DAY ───────────────────────────────────────────────────────────────
+async function loadAgendaDay(date) {
+  const lbl = new Date(date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('agenda-day-title').textContent = lbl.charAt(0).toUpperCase()+lbl.slice(1);
+  const list = document.getElementById('agenda-list');
+  list.innerHTML = '<div class="empty">Chargement…</div>';
+  try {
+    const r = await fetch(`${API}/driver/agenda?code=${driverCode}&date=${date}`);
+    const data = await r.json();
+    const slots = (data.slots||[]).sort((a,b)=>a.time.localeCompare(b.time));
+    if (!slots.length) { list.innerHTML = '<div class="empty">Aucune livraison planifiée ce jour.</div>'; return; }
+    list.innerHTML = slots.map(s => renderSlot(s, 'agenda')).join('');
+  } catch(e) { list.innerHTML = '<div class="empty">Erreur de chargement.</div>'; }
+}
+
+function renderSlot(s, ctx) {
+  const isMine = s.driver_id === driverInfo.id;
+  const isTaken = s.driver_id && !isMine;
+  const isDelivered = s.status === 'delivered';
+
+  let cls = 'delivery-card';
+  if (isMine) cls += ' mine';
+  else if (isTaken) cls += ' taken';
+  if (isDelivered) cls += ' delivered';
+
+  let actions = '';
+  if (ctx === 'agenda') {
+    if (!s.driver_id) {
+      actions = `<div class="delivery-actions"><button class="btn-take" onclick="takeSlot('${s.id}')">🤙 Prendre cette livraison</button></div>`;
+    } else if (isMine && !isDelivered) {
+      actions = `<div class="delivery-actions">
+        <span class="btn-taken-label">✅ Ma livraison</span>
+        <button class="btn-done" onclick="markDone('${s.id}')">Livré ✓</button>
+      </div>`;
+    } else if (isTaken) {
+      actions = `<div class="delivery-actions"><span class="btn-taken-label">🏍️ Pris par ${s.driver_name}</span></div>`;
+    }
+  } else if (ctx === 'mes' && !isDelivered) {
+    actions = `<div class="delivery-actions"><button class="btn-done" onclick="markDone('${s.id}')">Marquer livré ✓</button></div>`;
+  }
+
+  return `<div class="${cls}">
+    <div class="delivery-head">
+      <div class="delivery-top">
+        <span class="delivery-client">${s.client}</span>
+        <span class="delivery-time">${s.time||'?:??'}</span>
+      </div>
+      <div class="delivery-product">${s.product||'—'}</div>
+      <div class="delivery-address"><span class="pin">📍</span>${s.address||'—'}</div>
+      ${s.notes?`<div style="font-size:12px;color:var(--y);margin-top:6px;">💬 ${s.notes}</div>`:''}
+      <div class="delivery-meta">
+        ${s.distance_km?`<span class="delivery-tag tag-km">📏 ${s.distance_km} km</span>`:''}
+        ${s.delivery_price?`<span class="delivery-tag tag-price">💰 ${s.delivery_price}€</span>`:''}
+        ${isMine?'<span class="delivery-tag tag-mine">⭐ Ma livraison</span>':''}
+        ${isTaken&&!isMine?`<span class="delivery-tag tag-taken">🏍️ ${s.driver_name}</span>`:''}
+        ${isDelivered?'<span class="delivery-tag" style="background:rgba(71,85,105,.2);color:var(--ts)">✅ Livré</span>':''}
+      </div>
+    </div>
+    ${actions}
+  </div>`;
+}
+
+async function takeSlot(slotId) {
+  try {
+    const r = await fetch(`${API}/driver/take`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({code: driverCode, slot_id: slotId})
+    });
+    if (r.ok) {
+      loadAgendaDay(selectedDate);
+      buildWeek();
+    } else {
+      const d = await r.json();
+      if (d.error === 'already_taken') alert('Cette livraison a déjà été prise par un autre livreur.');
+    }
+  } catch(e) {}
+}
+
+async function markDone(slotId) {
+  await fetch(`${API}/admin/schedule-status`, {
+    method:'POST', headers:{'Content-Type':'application/json','X-Secret': driverCode},
+    body: JSON.stringify({id: slotId, status:'delivered'})
+  });
+  // On essaie avec le code admin aussi (fallback)
+  await fetch(`${API}/driver/done`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({code: driverCode, slot_id: slotId})
+  }).catch(()=>{});
+  loadAgendaDay(selectedDate);
+  loadMes();
+  loadStats();
+}
+
+// ─── MES LIVRAISONS ───────────────────────────────────────────────────────────
+async function loadMes() {
+  const list = document.getElementById('mes-list');
+  list.innerHTML = '<div class="empty">Chargement…</div>';
+  try {
+    const r = await fetch(`${API}/driver/stats?code=${driverCode}`);
+    const data = await r.json();
+    const slots = data.slots||[];
+    if(!slots.length){list.innerHTML='<div class="empty">Aucune livraison assignée pour le moment.</div>';return;}
+    list.innerHTML = slots.map(s => renderSlot(s, 'mes')).join('');
+  } catch(e) { list.innerHTML='<div class="empty">Erreur.</div>'; }
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const r = await fetch(`${API}/driver/stats?code=${driverCode}`);
+    const data = await r.json();
+    document.getElementById('s-count').textContent = data.deliveries||0;
+    document.getElementById('s-dist').textContent  = (data.totalDistance||0)+' km';
+    document.getElementById('s-net').textContent   = (data.netProfit||0)+'€';
+    document.getElementById('s-owed').textContent  = (data.moneyOwed||0)+'€';
+    document.getElementById('f-rev').textContent   = (data.deliveryRevenue||0)+'€';
+    document.getElementById('f-dist').textContent  = (data.totalDistance||0)+' km';
+    document.getElementById('f-fuel').textContent  = '−'+(data.fuelCost||0)+'€';
+    document.getElementById('f-net').textContent   = (data.netProfit||0)+'€';
+    document.getElementById('f-owed').textContent  = (data.moneyOwed||0)+'€';
+    const slots = data.slots||[];
+    document.getElementById('stats-list').innerHTML = slots.length
+      ? slots.map(s => renderSlot(s,'stats')).join('')
+      : '<div class="empty">Aucune livraison.</div>';
+  } catch(e) {}
+}
+</script>
+</body>
+</html>
