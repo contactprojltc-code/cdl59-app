@@ -269,7 +269,7 @@ button{cursor:pointer;}
 const API = 'https://cdl59-bot-production.up.railway.app';
 let driverCode = '', driverInfo = {}, weekOffset = 0;
 let currentSlot = null;
-const HOURS = Array.from({length:15},(_,i)=>i+8); // 8h→22h
+const HOURS = Array.from({length:24},(_,i)=>i); // 0h→23h
 const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 
 // ─── LOGIN ────────────────────────────────────────────────────────────────────
@@ -374,7 +374,6 @@ async function buildCalendar() {
 function placeCalEvent(slot) {
   if (!slot.time) return;
   const [h,m] = slot.time.split(':').map(Number);
-  if (h<8||h>22) return;
   const col = document.getElementById('dcol-'+slot.date);
   if (!col) return;
 
@@ -385,7 +384,7 @@ function placeCalEvent(slot) {
   let cls = 'cal-event ';
   cls += isDelivered ? 'delivered' : isMine ? 'mine' : isTaken ? 'taken' : 'available';
 
-  const top  = (h-8)*52 + Math.round((m/60)*52);
+  const top  = h*52 + Math.round((m/60)*52);
   const ev   = document.createElement('div');
   ev.className = cls;
   ev.style.top = top+'px';
