@@ -15,7 +15,7 @@ const PRICE_PER_KM = 0.75;
 const API_URL       = 'https://cdl59-bot-production.up.railway.app/order';
 const STATUS_URL    = 'https://cdl59-bot-production.up.railway.app/status';
 const HEARTBEAT_URL = 'https://cdl59-bot-production.up.railway.app/heartbeat';
-const API_SECRET = 'cdl59-secret-2025';
+const API_SECRET = 'CDL59040623';
 
 // ID de session anonyme pour tracking actifs
 const SESSION_UID = (() => {
