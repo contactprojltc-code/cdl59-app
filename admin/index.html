@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CDL59 — Admin</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --bg:#0a0d14;--card:#111827;--card2:#1a2235;
+      --border:#1e2d42;--yellow:#f5c518;--gold:#d4a017;
+      --text:#fff;--muted:#8a9bb0;--danger:#ef4444;--success:#22c55e;
+    }
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+    /* ── LOGIN ── */
+    #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+    .login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 32px;width:100%;max-width:380px;text-align:center;}
+    .login-logo{font-size:48px;margin-bottom:8px;}
+    .login-title{font-size:22px;font-weight:800;color:var(--yellow);margin-bottom:4px;}
+    .login-sub{font-size:13px;color:var(--muted);margin-bottom:28px;}
+    .login-input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--text);font-size:15px;outline:none;margin-bottom:12px;letter-spacing:2px;}
+    .login-input:focus{border-color:var(--yellow);}
+    .login-btn{width:100%;background:var(--yellow);color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;}
+    .login-error{color:var(--danger);font-size:13px;margin-top:8px;display:none;}
+
+    /* ── DASHBOARD ── */
+    #dashboard{display:none;}
+    .header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+    .header-left{display:flex;align-items:center;gap:12px;}
+    .header-logo{font-size:22px;font-weight:900;color:var(--yellow);}
+    .header-sub{font-size:12px;color:var(--muted);}
+    .header-right{display:flex;align-items:center;gap:12px;}
+    .live-dot{width:8px;height:8px;background:var(--success);border-radius:50%;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+    .live-label{font-size:12px;color:var(--success);font-weight:600;}
+    .logout-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);padding:6px 12px;font-size:12px;cursor:pointer;}
+    .logout-btn:hover{border-color:var(--danger);color:var(--danger);}
+
+    /* ── LIVE CARDS ── */
+    .live-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 20px;background:var(--card);border-bottom:1px solid var(--border);}
+    .live-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;text-align:center;}
+    .live-card-icon{font-size:22px;margin-bottom:4px;}
+    .live-card-val{font-size:22px;font-weight:800;color:var(--yellow);}
+    .live-card-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+
+    /* ── TABS ── */
+    .tabs{display:flex;gap:4px;padding:16px 20px 0;}
+    .tab{background:none;border:none;border-bottom:2px solid transparent;padding:10px 16px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;border-radius:8px 8px 0 0;}
+    .tab.active{color:var(--yellow);border-bottom-color:var(--yellow);background:var(--card2);}
+    .tab-content{display:none;padding:20px;}
+    .tab-content.active{display:block;}
+
+    /* ── DATE FILTER ── */
+    .filter-bar{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+    .filter-bar label{font-size:13px;color:var(--muted);}
+    .date-input{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text);font-size:13px;outline:none;}
+    .date-input:focus{border-color:var(--yellow);}
+    .filter-btn{background:var(--yellow);color:#000;border:none;border-radius:10px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;}
+    .today-btn{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px;color:var(--text);cursor:pointer;}
+    .today-btn:hover{border-color:var(--yellow);}
+
+    /* ── STATS CARDS ── */
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;}
+    .stat-card-title{font-size:12px;color:var(--muted);margin-bottom:6px;}
+    .stat-card-val{font-size:26px;font-weight:800;color:var(--yellow);}
+    .stat-card-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+
+    /* ── BAR CHART ── */
+    .chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px;}
+    .chart-title{font-size:13px;font-weight:700;margin-bottom:12px;color:var(--muted);}
+    .chart-bars{display:flex;align-items:flex-end;gap:4px;height:80px;}
+    .chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .chart-bar{width:100%;background:var(--yellow);border-radius:4px 4px 0 0;min-height:4px;transition:height .3s;}
+    .chart-bar-lbl{font-size:9px;color:var(--muted);}
+    .chart-bar-val{font-size:9px;color:var(--text);font-weight:700;}
+
+    /* ── ORDERS TABLE ── */
+    .section-title{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--muted);}
+    .orders-list{display:flex;flex-direction:column;gap:8px;}
+    .order-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;}
+    .order-card.delivered{opacity:0.5;}
+    .order-type{font-size:20px;flex-shrink:0;}
+    .order-info{flex:1;min-width:0;}
+    .order-info-top{display:flex;gap:8px;align-items:center;margin-bottom:4px;}
+    .order-username{font-size:13px;font-weight:700;color:var(--yellow);}
+    .order-time{font-size:11px;color:var(--muted);}
+    .order-product{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .order-address{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .order-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+    .order-total{font-size:16px;font-weight:800;color:var(--yellow);}
+    .order-status-btn{font-size:11px;padding:4px 10px;border-radius:8px;border:none;cursor:pointer;font-weight:600;}
+    .order-status-btn.pending{background:rgba(245,197,24,.15);color:var(--yellow);}
+    .order-status-btn.delivered{background:rgba(34,197,94,.15);color:var(--success);}
+    .order-status-btn.add-agenda{background:var(--card2);color:var(--muted);border:1px solid var(--border);}
+    .empty-state{text-align:center;padding:40px;color:var(--muted);font-size:14px;}
+
+    /* ── AGENDA ── */
+    .agenda-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+    .agenda-date{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text);font-size:14px;outline:none;}
+    .agenda-date:focus{border-color:var(--yellow);}
+    .add-slot-btn{background:var(--yellow);color:#000;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;}
+
+    .add-form{background:var(--card);border:1px solid var(--yellow);border-radius:14px;padding:16px;margin-bottom:16px;display:none;}
+    .add-form.open{display:block;}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+    .form-group{display:flex;flex-direction:column;gap:4px;}
+    .form-group label{font-size:11px;color:var(--muted);}
+    .form-group input,.form-group textarea{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;outline:none;font-family:inherit;}
+    .form-group input:focus,.form-group textarea:focus{border-color:var(--yellow);}
+    .form-group.full{grid-column:1/-1;}
+    .form-actions{display:flex;gap:8px;justify-content:flex-end;}
+    .form-cancel{background:none;border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--muted);font-size:13px;cursor:pointer;}
+    .form-save{background:var(--yellow);border:none;border-radius:8px;padding:8px 18px;color:#000;font-size:13px;font-weight:700;cursor:pointer;}
+
+    .timeline{display:flex;flex-direction:column;gap:10px;}
+    .slot-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;gap:14px;align-items:flex-start;}
+    .slot-card.delivered{opacity:0.45;border-style:dashed;}
+    .slot-time-col{flex-shrink:0;width:48px;text-align:center;}
+    .slot-time{font-size:16px;font-weight:800;color:var(--yellow);}
+    .slot-time-lbl{font-size:10px;color:var(--muted);}
+    .slot-info{flex:1;}
+    .slot-client{font-size:14px;font-weight:700;margin-bottom:2px;}
+    .slot-product{font-size:12px;color:var(--muted);margin-bottom:2px;}
+    .slot-address{font-size:12px;color:var(--muted);}
+    .slot-notes{font-size:11px;color:var(--gold);margin-top:4px;font-style:italic;}
+    .slot-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
+    .slot-done-btn{background:rgba(34,197,94,.15);color:var(--success);border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;}
+    .slot-del-btn{background:rgba(239,68,68,.1);color:var(--danger);border:none;border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;}
+
+    /* ── BREAKDOWN ── */
+    .breakdown-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+    .breakdown-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;}
+    .breakdown-title{font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;}
+    .breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px;}
+    .breakdown-row-val{font-weight:700;color:var(--yellow);}
+
+    @media(max-width:600px){
+      .live-bar{grid-template-columns:repeat(2,1fr);}
+      .stats-grid{grid-template-columns:repeat(2,1fr);}
+      .breakdown-grid{grid-template-columns:1fr;}
+      .form-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🖤</div>
+    <div class="login-title">CDL59 Admin</div>
+    <div class="login-sub">Entre ta clé d'accès pour accéder au dashboard</div>
+    <input id="secret-input" class="login-input" type="password" placeholder="Clé admin..." autocomplete="off"
+      onkeydown="if(event.key==='Enter') tryLogin()">
+    <button class="login-btn" onclick="tryLogin()">Accéder au dashboard</button>
+    <div id="login-error" class="login-error">❌ Clé incorrecte. Réessaie.</div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard">
+
+  <div class="header">
+    <div class="header-left">
+      <div>
+        <div class="header-logo">CDL59</div>
+        <div class="header-sub">Dashboard Admin</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-dot"></div>
+      <span class="live-label" id="live-label">Live</span>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <!-- Live cards -->
+  <div class="live-bar">
+    <div class="live-card">
+      <div class="live-card-icon">👥</div>
+      <div class="live-card-val" id="lc-active">—</div>
+      <div class="live-card-lbl">Actifs maintenant</div>
+    </div>
+    <div class="live-card">
+      <div class="live-card-icon">📦</div>
+      <div class="live-card-val" id="lc-orders">—</div>
+      <div class="live-card-lbl">Commandes aujourd'hui</div>
+    </div>
+    <div class="live-card">
+      <div class="live-card-icon">💰</div>
+      <div class="live-card-val" id="lc-revenue">—</div>
+      <div class="live-card-lbl">Revenus aujourd'hui</div>
+    </div>
+    <div class="live-card">
+      <div class="live-card-icon">🛵</div>
+      <div class="live-card-val" id="lc-delivery">—</div>
+      <div class="live-card-lbl">Livraisons (frais)</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('stats')">📊 Statistiques</button>
+    <button class="tab" onclick="switchTab('orders')">📋 Commandes</button>
+    <button class="tab" onclick="switchTab('agenda')">📅 Agenda</button>
+  </div>
+
+  <!-- ── TAB STATS ── -->
+  <div id="tab-stats" class="tab-content active">
+    <div class="filter-bar">
+      <label>Du</label>
+      <input type="date" id="from-date" class="date-input">
+      <label>au</label>
+      <input type="date" id="to-date" class="date-input">
+      <button class="filter-btn" onclick="loadStats()">Filtrer</button>
+      <button class="today-btn" onclick="setToday(); loadStats()">Aujourd'hui</button>
+      <button class="today-btn" onclick="setWeek(); loadStats()">7 jours</button>
+      <button class="today-btn" onclick="setMonth(); loadStats()">30 jours</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-title">Commandes totales</div>
+        <div class="stat-card-val" id="s-orders">—</div>
+        <div class="stat-card-sub" id="s-orders-sub"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title">Revenus totaux</div>
+        <div class="stat-card-val" id="s-revenue">—</div>
+        <div class="stat-card-sub" id="s-revenue-sub"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title">Frais de livraison</div>
+        <div class="stat-card-val" id="s-delivery">—</div>
+        <div class="stat-card-sub" id="s-delivery-sub"></div>
+      </div>
+    </div>
+
+    <div class="breakdown-grid">
+      <div class="breakdown-card">
+        <div class="breakdown-title">Par produit</div>
+        <div class="breakdown-row"><span>🟡 TANK 2000g</span><span class="breakdown-row-val" id="s-tank">—</span></div>
+        <div class="breakdown-row"><span>⚫ Bonbonne 666g</span><span class="breakdown-row-val" id="s-bonbonne">—</span></div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-title">Par type</div>
+        <div class="breakdown-row"><span>🛵 Livraison</span><span class="breakdown-row-val" id="s-livraison">—</span></div>
+        <div class="breakdown-row"><span>🏠 Sur place</span><span class="breakdown-row-val" id="s-surplace">—</span></div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-title">Commandes par jour</div>
+      <div class="chart-bars" id="chart-bars"><div style="color:var(--muted);font-size:13px;">Chargement…</div></div>
+    </div>
+  </div>
+
+  <!-- ── TAB ORDERS ── -->
+  <div id="tab-orders" class="tab-content">
+    <div class="filter-bar">
+      <label>Du</label>
+      <input type="date" id="from-date2" class="date-input">
+      <label>au</label>
+      <input type="date" id="to-date2" class="date-input">
+      <button class="filter-btn" onclick="loadOrders()">Filtrer</button>
+      <button class="today-btn" onclick="setToday2(); loadOrders()">Aujourd'hui</button>
+    </div>
+    <div class="section-title" id="orders-count-lbl">Commandes</div>
+    <div class="orders-list" id="orders-list"><div class="empty-state">Chargement…</div></div>
+  </div>
+
+  <!-- ── TAB AGENDA ── -->
+  <div id="tab-agenda" class="tab-content">
+    <div class="agenda-header">
+      <input type="date" id="agenda-date" class="agenda-date" onchange="loadAgenda()">
+      <button class="add-slot-btn" onclick="toggleAddForm()">+ Ajouter une livraison</button>
+    </div>
+
+    <div class="add-form" id="add-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Heure</label>
+          <input type="time" id="f-time">
+        </div>
+        <div class="form-group">
+          <label>Client (pseudo Telegram)</label>
+          <input type="text" id="f-client" placeholder="@pseudo">
+        </div>
+        <div class="form-group full">
+          <label>Adresse</label>
+          <input type="text" id="f-address" placeholder="12 rue de la Paix, Lille">
+        </div>
+        <div class="form-group">
+          <label>Produit</label>
+          <input type="text" id="f-product" placeholder="TANK x1 — 50€">
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <input type="text" id="f-notes" placeholder="Digicode, étage…">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="form-cancel" onclick="toggleAddForm()">Annuler</button>
+        <button class="form-save" onclick="addSlot()">Enregistrer</button>
+      </div>
+    </div>
+
+    <div class="timeline" id="timeline"><div class="empty-state">Aucune livraison planifiée.</div></div>
+  </div>
+
+</div>
+
+<script>
+const API = 'https://cdl59-bot-production.up.railway.app';
+let secret = '';
+
+// ── LOGIN ──
+function tryLogin() {
+  const key = document.getElementById('secret-input').value.trim();
+  if (!key) return;
+  fetch(`${API}/admin/stats`, { headers: { 'X-Secret': key } })
+    .then(r => {
+      if (r.ok) {
+        secret = key;
+        sessionStorage.setItem('cdl_admin_secret', key);
+        init();
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    })
+    .catch(() => {
+      document.getElementById('login-error').style.display = 'block';
+    });
+}
+
+function logout() {
+  sessionStorage.removeItem('cdl_admin_secret');
+  secret = '';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ── INIT ──
+function init() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  setToday(); setToday2();
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('agenda-date').value = today;
+  loadLiveCards();
+  loadStats();
+  loadAgenda();
+  setInterval(loadLiveCards, 30000);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = sessionStorage.getItem('cdl_admin_secret');
+  if (saved) { secret = saved; tryLogin(); }
+});
+
+// ── TABS ──
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'orders') loadOrders();
+  if (name === 'agenda') loadAgenda();
+}
+
+// ── DATES ──
+function today() { return new Date().toISOString().slice(0,10); }
+function daysAgo(n) { const d = new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); }
+function setToday()  { document.getElementById('from-date').value = today(); document.getElementById('to-date').value = today(); }
+function setWeek()   { document.getElementById('from-date').value = daysAgo(6); document.getElementById('to-date').value = today(); }
+function setMonth()  { document.getElementById('from-date').value = daysAgo(29); document.getElementById('to-date').value = today(); }
+function setToday2() { document.getElementById('from-date2').value = today(); document.getElementById('to-date2').value = today(); }
+
+function fmt(d) {
+  const dt = new Date(d);
+  return dt.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+}
+function fmtDate(d) {
+  const dt = new Date(d);
+  return dt.toLocaleDateString('fr-FR', { day:'2-digit', month:'short' });
+}
+
+// ── LIVE CARDS ──
+async function loadLiveCards() {
+  const t = today();
+  try {
+    const r = await fetch(`${API}/admin/stats?from=${t}&to=${t}`, { headers: {'X-Secret': secret} });
+    if (!r.ok) return;
+    const data = await r.json();
+    document.getElementById('lc-active').textContent  = data.activeUsers ?? 0;
+    document.getElementById('lc-orders').textContent  = data.ordersCount ?? 0;
+    document.getElementById('lc-revenue').textContent = (data.totalRevenue ?? 0) + '€';
+    document.getElementById('lc-delivery').textContent= (data.deliveryRevenue ?? 0) + '€';
+    document.getElementById('live-label').textContent = 'Live · ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {}
+}
+
+// ── STATS ──
+async function loadStats() {
+  const from = document.getElementById('from-date').value;
+  const to   = document.getElementById('to-date').value;
+  if (!from || !to) return;
+
+  try {
+    const r = await fetch(`${API}/admin/stats?from=${from}&to=${to}`, { headers: {'X-Secret': secret} });
+    const data = await r.json();
+
+    document.getElementById('s-orders').textContent    = data.ordersCount;
+    document.getElementById('s-revenue').textContent   = data.totalRevenue + '€';
+    document.getElementById('s-delivery').textContent  = data.deliveryRevenue + '€';
+    document.getElementById('s-orders-sub').textContent= `${data.livraisonCount} livraisons · ${data.surplaceCount} sur place`;
+    document.getElementById('s-revenue-sub').textContent= `Produits : ${data.productRevenue}€`;
+    document.getElementById('s-delivery-sub').textContent= `${data.livraisonCount} course(s)`;
+    document.getElementById('s-tank').textContent      = data.tankCount + ' cmd';
+    document.getElementById('s-bonbonne').textContent  = data.bonbonneCount + ' cmd';
+    document.getElementById('s-livraison').textContent = data.livraisonCount + ' cmd';
+    document.getElementById('s-surplace').textContent  = data.surplaceCount + ' cmd';
+
+    buildChart(data.orders || [], from, to);
+  } catch(e) {}
+}
+
+function buildChart(orders, from, to) {
+  const wrap = document.getElementById('chart-bars');
+  const days = [];
+  const d = new Date(from);
+  const end = new Date(to);
+  while (d <= end) { days.push(d.toISOString().slice(0,10)); d.setDate(d.getDate()+1); }
+
+  const counts = {};
+  days.forEach(d => counts[d] = 0);
+  orders.forEach(o => { const k = o.timestamp?.slice(0,10); if (k && counts[k] !== undefined) counts[k]++; });
+  const max = Math.max(...Object.values(counts), 1);
+
+  wrap.innerHTML = days.map(d => {
+    const v = counts[d] || 0;
+    const h = Math.max(4, Math.round((v/max)*76));
+    const lbl = d.slice(5).replace('-','/');
+    return `<div class="chart-bar-wrap">
+      <div class="chart-bar-val">${v||''}</div>
+      <div class="chart-bar" style="height:${h}px"></div>
+      <div class="chart-bar-lbl">${days.length<=7 ? lbl : (days.indexOf(d)%Math.ceil(days.length/7)===0 ? lbl : '')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── ORDERS ──
+async function loadOrders() {
+  const from = document.getElementById('from-date2').value;
+  const to   = document.getElementById('to-date2').value;
+  if (!from || !to) return;
+
+  const list = document.getElementById('orders-list');
+  list.innerHTML = '<div class="empty-state">Chargement…</div>';
+
+  try {
+    const r = await fetch(`${API}/admin/stats?from=${from}&to=${to}`, { headers: {'X-Secret': secret} });
+    const data = await r.json();
+    const orders = data.orders || [];
+
+    document.getElementById('orders-count-lbl').textContent =
+      `${orders.length} commande${orders.length>1?'s':''} · ${data.totalRevenue}€`;
+
+    if (!orders.length) { list.innerHTML = '<div class="empty-state">Aucune commande sur cette période.</div>'; return; }
+
+    list.innerHTML = orders.map(o => `
+      <div class="order-card ${o.status==='delivered'?'delivered':''}" id="oc-${o.id}">
+        <div class="order-type">${o.delivery==='livraison'?'🛵':'🏠'}</div>
+        <div class="order-info">
+          <div class="order-info-top">
+            <span class="order-username">${o.username}</span>
+            <span class="order-time">${fmt(o.timestamp)}</span>
+          </div>
+          <div class="order-product">${o.name} — ${o.option}</div>
+          ${o.deliveryAddress ? `<div class="order-address">📍 ${o.deliveryAddress}</div>` : ''}
+        </div>
+        <div class="order-right">
+          <span class="order-total">${o.total}€</span>
+          <button class="order-status-btn ${o.status==='delivered'?'delivered':'pending'}" onclick="toggleOrderStatus('${o.id}','${o.status}')">
+            ${o.status==='delivered'?'✅ Livré':'⏳ En attente'}
+          </button>
+          ${o.delivery==='livraison' ? `<button class="order-status-btn add-agenda" onclick="prefillAgenda('${o.username}','${o.deliveryAddress||''}','${o.name} — ${o.option} — ${o.total}€')">📅 Agenda</button>` : ''}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { list.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; }
+}
+
+async function toggleOrderStatus(id, current) {
+  const next = current === 'delivered' ? 'pending' : 'delivered';
+  await fetch(`${API}/admin/order-status`, {
+    method: 'POST',
+    headers: {'X-Secret': secret, 'Content-Type': 'application/json'},
+    body: JSON.stringify({id, status: next})
+  });
+  loadOrders();
+}
+
+// ── AGENDA ──
+async function loadAgenda() {
+  const d = document.getElementById('agenda-date').value;
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '<div class="empty-state">Chargement…</div>';
+  try {
+    const r = await fetch(`${API}/admin/schedule?date=${d}`, { headers: {'X-Secret': secret} });
+    const slots = await r.json();
+    if (!slots.length) { tl.innerHTML = '<div class="empty-state">Aucune livraison planifiée pour ce jour.</div>'; return; }
+    const sorted = [...slots].sort((a,b) => a.time.localeCompare(b.time));
+    tl.innerHTML = sorted.map(s => `
+      <div class="slot-card ${s.status==='delivered'?'delivered':''}" id="sc-${s.id}">
+        <div class="slot-time-col">
+          <div class="slot-time">${s.time||'—'}</div>
+        </div>
+        <div class="slot-info">
+          <div class="slot-client">${s.client}</div>
+          <div class="slot-product">${s.product}</div>
+          ${s.address ? `<div class="slot-address">📍 ${s.address}</div>` : ''}
+          ${s.notes   ? `<div class="slot-notes">💬 ${s.notes}</div>` : ''}
+        </div>
+        <div class="slot-actions">
+          <button class="slot-done-btn" onclick="markSlotDone('${s.id}','${s.status}')">
+            ${s.status==='delivered'?'✅ Livré':'Marquer livré'}
+          </button>
+          <button class="slot-del-btn" onclick="deleteSlot('${s.id}')">Supprimer</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { tl.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; }
+}
+
+function toggleAddForm() {
+  const f = document.getElementById('add-form');
+  f.classList.toggle('open');
+}
+
+async function addSlot() {
+  const d = document.getElementById('agenda-date').value;
+  const slot = {
+    date:    d,
+    time:    document.getElementById('f-time').value,
+    client:  document.getElementById('f-client').value,
+    address: document.getElementById('f-address').value,
+    product: document.getElementById('f-product').value,
+    notes:   document.getElementById('f-notes').value,
+  };
+  if (!slot.client) return;
+  await fetch(`${API}/admin/schedule`, {
+    method: 'POST',
+    headers: {'X-Secret': secret, 'Content-Type': 'application/json'},
+    body: JSON.stringify(slot)
+  });
+  ['f-time','f-client','f-address','f-product','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('add-form').classList.remove('open');
+  loadAgenda();
+}
+
+async function markSlotDone(id, current) {
+  const next = current === 'delivered' ? 'pending' : 'delivered';
+  await fetch(`${API}/admin/schedule-status`, {
+    method: 'POST',
+    headers: {'X-Secret': secret, 'Content-Type': 'application/json'},
+    body: JSON.stringify({id, status: next})
+  });
+  loadAgenda();
+}
+
+async function deleteSlot(id) {
+  if (!confirm('Supprimer cette livraison ?')) return;
+  await fetch(`${API}/admin/schedule?id=${id}`, {
+    method: 'DELETE',
+    headers: {'X-Secret': secret}
+  });
+  loadAgenda();
+}
+
+function prefillAgenda(client, address, product) {
+  switchTabByName('agenda');
+  document.getElementById('f-client').value  = client;
+  document.getElementById('f-address').value = address;
+  document.getElementById('f-product').value = product;
+  document.getElementById('add-form').classList.add('open');
+  document.getElementById('add-form').scrollIntoView({ behavior: 'smooth' });
+}
+
+function switchTabByName(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['stats','orders','agenda'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'agenda') loadAgenda();
+}
+</script>
+</body>
+</html>
