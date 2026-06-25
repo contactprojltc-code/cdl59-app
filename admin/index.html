@@ -455,6 +455,7 @@ a{text-decoration:none;color:inherit;}
       </div>
       <div class="section-hd">
         <span class="section-title" id="orders-lbl">Commandes</span>
+        <button id="toggle-delivered" class="btn-sm btn-ghost" onclick="toggleDelivered()" style="font-size:11px;padding:5px 10px;">Voir livrées</button>
       </div>
       <div class="orders-grid" id="orders-list"></div>
     </div>
@@ -752,13 +753,27 @@ function buildMiniChart(orders, from, to) {
 }
 
 // ─── ORDERS ──────────────────────────────────────────────────────────────────
+let _showDelivered = false;
+let _allOrders = [];
+
+function toggleDelivered() {
+  _showDelivered = !_showDelivered;
+  const btn = document.getElementById('toggle-delivered');
+  btn.textContent = _showDelivered ? 'Masquer livrées' : 'Voir livrées';
+  btn.classList.toggle('active', _showDelivered);
+  const visible = _showDelivered ? _allOrders : _allOrders.filter(o => o.status !== 'delivered');
+  renderOrderList(document.getElementById('orders-list'), visible, false);
+}
+
 async function loadOrders() {
   const from=document.getElementById('o-from').value, to=document.getElementById('o-to').value;
   if(!from||!to) return;
   const data = await apiFetch(`/admin/stats?from=${from}&to=${to}`);
-  const orders = data.orders||[];
-  document.getElementById('orders-lbl').textContent = `${orders.length} commande${orders.length>1?'s':''} · ${data.totalRevenue||0}€`;
-  renderOrderList(document.getElementById('orders-list'), orders, false);
+  _allOrders = data.orders||[];
+  const pending = _allOrders.filter(o => o.status !== 'delivered');
+  document.getElementById('orders-lbl').textContent = `${pending.length} en attente · ${_allOrders.length} total`;
+  const visible = _showDelivered ? _allOrders : pending;
+  renderOrderList(document.getElementById('orders-list'), visible, false);
 }
 
 function renderOrderList(container, orders, compact) {
