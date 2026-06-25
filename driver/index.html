@@ -105,6 +105,12 @@ button{cursor:pointer;}
 .tag-mine{background:var(--gd);color:var(--g);}
 .tag-taken{background:rgba(71,85,105,.2);color:var(--ts);}
 .sheet-action{padding:0 20px 16px;}
+.btn-maps-row{display:flex;gap:8px;margin-bottom:10px;}
+.btn-map{flex:1;border:none;border-radius:10px;padding:10px 6px;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.btn-map span{font-size:18px;}
+.btn-waze{background:rgba(0,180,255,.12);color:#00b4ff;}
+.btn-gmaps{background:rgba(66,133,244,.12);color:#4285f4;}
+.btn-apple{background:rgba(255,255,255,.06);color:var(--tm);}
 .btn-take{width:100%;background:var(--y);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;color:#000;letter-spacing:.2px;}
 .btn-livré{width:100%;background:var(--g);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;color:#fff;letter-spacing:.2px;}
 .btn-taken-lbl{width:100%;background:var(--gd);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:14px;font-size:14px;font-weight:700;color:var(--g);text-align:center;}
@@ -258,7 +264,7 @@ button{cursor:pointer;}
   </div>
   <div class="sheet-body">
     <div class="sheet-field"><label>Produit</label><span id="sh-product"></span></div>
-    <div class="sheet-field"><label>Adresse</label><span id="sh-address"></span></div>
+    <div id="sh-maps"></div>
     <div class="sheet-field" id="sh-notes-wrap" style="display:none"><label>Notes</label><span id="sh-notes"></span></div>
     <div class="sheet-tags" id="sh-tags"></div>
   </div>
@@ -412,7 +418,15 @@ function openSheet(slot) {
   document.getElementById('sh-title').textContent   = `📅 ${slot.date} à ${slot.time||'?'}`;
   document.getElementById('sh-client').textContent  = slot.client;
   document.getElementById('sh-product').textContent = slot.product||'—';
-  document.getElementById('sh-address').textContent = slot.address||'—';
+  const addr = slot.address||'';
+  const enc  = encodeURIComponent(addr);
+  document.getElementById('sh-maps').innerHTML = addr ? `
+    <div class="sheet-field"><label>Adresse</label><span>${addr}</span>
+      <div class="btn-maps-row" style="margin-top:8px;">
+        <button class="btn-map btn-waze"  onclick="openMaps('waze','${enc}')"><span>🗺️</span>Waze</button>
+        <button class="btn-map btn-gmaps" onclick="openMaps('gmaps','${enc}')"><span>📍</span>Google</button>
+        <button class="btn-map btn-apple" onclick="openMaps('apple','${enc}')"><span>🍎</span>Plans</button>
+      </div></div>` : '';
 
   if (slot.notes) {
     document.getElementById('sh-notes-wrap').style.display='';
@@ -428,6 +442,22 @@ function openSheet(slot) {
   if (isMine && !isDelivered) tags += `<span class="sheet-tag tag-mine">⭐ Ma livraison</span>`;
   if (isTaken) tags += `<span class="sheet-tag tag-taken">🏍️ ${slot.driver_name}</span>`;
   document.getElementById('sh-tags').innerHTML = tags;
+
+  // Bouton maps sur l'adresse
+  const mapsHtml = slot.address ? `
+    <div class="sheet-field">
+      <label>Adresse</label>
+      <span>${slot.address}</span>
+      <div class="btn-maps-row" style="margin-top:8px;">
+        <button class="btn-map btn-waze" onclick="openMaps('${slot.address.replace(/'/g,"\\'")}','waze')"><span>🗺️</span>Waze</button>
+        <button class="btn-map btn-gmaps" onclick="openMaps('${slot.address.replace(/'/g,"\\'")}','gmaps')"><span>📍</span>Google</button>
+        <button class="btn-map btn-apple" onclick="openMaps('${slot.address.replace(/'/g,"\\'")}','apple')"><span>🍎</span>Plans</button>
+      </div>
+    </div>` : '';
+
+  document.getElementById('sh-address').closest('.sheet-field').style.display = 'none';
+  const mapsContainer = document.getElementById('sh-maps');
+  if (mapsContainer) mapsContainer.innerHTML = mapsHtml;
 
   // Action
   let action = '';
@@ -505,7 +535,14 @@ function renderMesCard(s) {
         <span class="delivery-time-pill">${s.time||'?:??'}</span>
       </div>
       <div class="delivery-product">${s.product||'—'}</div>
-      <div class="delivery-addr"><span>📍</span>${s.address||'—'}</div>
+      <div class="delivery-addr" style="flex-wrap:wrap;gap:6px;">
+        <span>📍</span><span>${s.address||'—'}</span>
+        ${s.address?`<div class="btn-maps-row" style="margin-top:6px;width:100%;">
+          <button class="btn-map btn-waze"  onclick="event.stopPropagation();openMaps('waze','${encodeURIComponent(s.address)}')"><span>🗺️</span>Waze</button>
+          <button class="btn-map btn-gmaps" onclick="event.stopPropagation();openMaps('gmaps','${encodeURIComponent(s.address)}')"><span>📍</span>Google</button>
+          <button class="btn-map btn-apple" onclick="event.stopPropagation();openMaps('apple','${encodeURIComponent(s.address)}')"><span>🍎</span>Plans</button>
+        </div>`:''}
+      </div>
     </div>
     <div class="delivery-tags">
       ${s.distance_km?`<span class="sheet-tag tag-km">📏 ${s.distance_km} km</span>`:''}
@@ -542,6 +579,15 @@ async function markDoneCard(slotId) {
   loadMes();
   buildCalendar();
   loadStats();
+}
+
+function openMaps(app, enc) {
+  const urls = {
+    waze:  `https://waze.com/ul?q=${enc}&navigate=yes`,
+    gmaps: `https://www.google.com/maps/search/?api=1&query=${enc}`,
+    apple: `https://maps.apple.com/?q=${enc}`,
+  };
+  window.open(urls[app], '_blank');
 }
 
 function updateMesBadge(n) {
