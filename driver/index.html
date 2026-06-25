@@ -76,7 +76,7 @@ button{cursor:pointer;}
 .cal-day-col{border-right:1px solid var(--border);position:relative;}
 .cal-day-col:last-child{border-right:none;}
 .cal-hour-row{height:52px;border-bottom:1px solid rgba(255,255,255,.025);}
-.cal-event{position:absolute;left:2px;right:2px;border-radius:7px;padding:3px 6px;font-size:10px;font-weight:700;cursor:pointer;z-index:2;overflow:hidden;transition:all .15s;border-left:3px solid;}
+.cal-event{position:absolute;left:2px;right:2px;border-radius:7px;padding:3px 6px;font-size:10px;font-weight:700;cursor:pointer;z-index:2;overflow:hidden;transition:all .15s;border-left:3px solid;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
 .cal-event:hover{filter:brightness(1.1);}
 .cal-event.available{background:rgba(245,197,24,.14);border-color:var(--y);color:var(--y);}
 .cal-event.mine{background:rgba(16,185,129,.18);border-color:var(--g);color:var(--g);}
