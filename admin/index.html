@@ -110,7 +110,7 @@ a{text-decoration:none;color:inherit;}
 .orders-grid{display:flex;flex-direction:column;gap:8px;}
 .order-row{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:0;overflow:hidden;transition:border .2s;}
 .order-row:hover{border-color:var(--border2);}
-.order-head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;}
+.order-head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
 .order-type-badge{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
 .type-livraison{background:var(--bd);}
 .type-surplace{background:var(--gd);}
@@ -784,7 +784,8 @@ async function loadDashboard() {
 
   const week = await apiFetch(`/admin/stats?from=${daysAgo(6)}&to=${t}`);
   buildMiniChart(week.orders||[], daysAgo(6), t);
-  renderOrderList(document.getElementById('recent-orders'), (today.orders||[]).slice(0,5), true);
+  const recentPending = (today.orders||[]).filter(o => o.status !== 'delivered').slice(0,5);
+  renderOrderList(document.getElementById('recent-orders'), recentPending, true);
 }
 
 function buildMiniChart(orders, from, to) {
@@ -842,7 +843,7 @@ function renderOrderList(container, orders, compact) {
         <div class="order-right">
           <span class="order-amount">${prodRev}€</span>
           <span class="status-pill ${o.status==='delivered'?'pill-delivered':'pill-pending'}">${o.status==='delivered'?'✅':'⏳'}</span>
-          <button class="order-expand" id="exp-${o.id}">›</button>
+          <button class="order-expand" id="exp-${o.id}" onclick="toggleOrder('${o.id}')">›</button>
         </div>
       </div>
       <div class="order-detail" id="od-${o.id}">
