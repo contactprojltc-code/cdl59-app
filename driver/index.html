@@ -298,6 +298,7 @@ window.addEventListener('DOMContentLoaded', () => {
 const vIcon  = v => v==='velo'?'🚴':v==='voiture'?'🚗':'🛵';
 const vLabel = v => v==='velo'?'Vélo':v==='voiture'?'Voiture':'Scooter';
 
+let _driverPage = 'agenda';
 function initDriver() {
   document.getElementById('login').style.display = 'none';
   document.getElementById('app').style.display = 'block';
@@ -306,10 +307,17 @@ function initDriver() {
   document.getElementById('h-vehicle').textContent = `${vLabel(driverInfo.vehicle)} · ${driverInfo.consumption}L/100`;
   buildCalendar();
   loadStats();
+  setInterval(driverAutoRefresh, 10000);
+}
+async function driverAutoRefresh() {
+  if (_driverPage === 'agenda') await buildCalendar();
+  else if (_driverPage === 'mes') await loadMes();
+  else if (_driverPage === 'stats') await loadStats();
 }
 
 // ─── NAV ──────────────────────────────────────────────────────────────────────
 function switchPage(p) {
+  _driverPage = p;
   ['agenda','mes','stats'].forEach(n => {
     document.getElementById('page-'+n).classList.toggle('active', n===p);
     document.getElementById('nav-'+n).classList.toggle('active', n===p);
