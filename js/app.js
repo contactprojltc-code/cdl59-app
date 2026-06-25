@@ -12,9 +12,27 @@ let shopStatus = { on: true, tank: true, bonbonne: true };
 
 const ORIGIN = [50.6292, 3.0573];
 const PRICE_PER_KM = 0.75;
-const API_URL = 'https://cdl59-bot-production.up.railway.app/order';
-const STATUS_URL = 'https://cdl59-bot-production.up.railway.app/status';
+const API_URL       = 'https://cdl59-bot-production.up.railway.app/order';
+const STATUS_URL    = 'https://cdl59-bot-production.up.railway.app/status';
+const HEARTBEAT_URL = 'https://cdl59-bot-production.up.railway.app/heartbeat';
 const API_SECRET = 'cdl59-secret-2025';
+
+// ID de session anonyme pour tracking actifs
+const SESSION_UID = (() => {
+  let uid = sessionStorage.getItem('cdl_uid');
+  if (!uid) { uid = Math.random().toString(36).slice(2); sessionStorage.setItem('cdl_uid', uid); }
+  return uid;
+})();
+
+function sendHeartbeat() {
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  const uid = tgUser ? `tg_${tgUser.id}` : `s_${SESSION_UID}`;
+  fetch(HEARTBEAT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uid })
+  }).catch(() => {});
+}
 
 const PRODUCTS = {
   tank: {
@@ -631,7 +649,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderProduct();
   renderCart();
   navigate('accueil');
-  // Confettis au chargement de l'accueil
   setTimeout(launchConfetti, 400);
+
+  // Heartbeat actifs
+  sendHeartbeat();
+  setInterval(sendHeartbeat, 30000);
 });
 
