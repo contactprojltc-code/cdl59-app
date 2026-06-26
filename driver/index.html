@@ -301,6 +301,15 @@ if ('serviceWorker' in navigator) {
   });
 }
 let driverCode = '', driverInfo = {}, weekOffset = 0;
+
+function tgLink(u) {
+  if (!u) return '—';
+  const handle = u.startsWith('@') ? u.slice(1) : null;
+  const idM = u.match(/ID:\s*(\d+)/);
+  if (!handle && !idM) return u;
+  const href = handle ? `https://t.me/${handle}` : `tg://user?id=${idM[1]}`;
+  return `<a href="${href}" target="_blank" rel="noopener" style="color:var(--b);text-decoration:none;font-weight:700">${u}</a>`;
+}
 let currentSlot = null;
 const HOURS = Array.from({length:24},(_,i)=>i); // 0h→23h
 const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
@@ -520,7 +529,7 @@ function openSheet(slot) {
   const isDelivered= slot.status==='delivered';
 
   document.getElementById('sh-title').textContent   = `📅 ${slot.date} à ${slot.time||'?'}`;
-  document.getElementById('sh-client').textContent  = slot.client;
+  document.getElementById('sh-client').innerHTML    = tgLink(slot.client);
   document.getElementById('sh-product').textContent = slot.product||'—';
   const addr = slot.address||'';
   const enc  = encodeURIComponent(addr);
