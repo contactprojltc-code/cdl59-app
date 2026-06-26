@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="36" fill="#05080f"/>
+  <rect width="192" height="192" rx="36" fill="url(#g)"/>
+  <defs>
+    <radialGradient id="g" cx="30%" cy="20%" r="80%">
+      <stop offset="0%" stop-color="#f5c518" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#05080f" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <text x="96" y="82" text-anchor="middle" font-family="-apple-system,sans-serif" font-weight="900" font-size="38" fill="#f5c518">CDL</text>
+  <text x="96" y="126" text-anchor="middle" font-family="-apple-system,sans-serif" font-weight="900" font-size="44" fill="#f5c518">59</text>
+</svg>
