@@ -289,6 +289,53 @@ a{text-decoration:none;color:inherit;}
 .breakdown-row:last-child{border-bottom:none;}
 .breakdown-val{font-weight:700;color:var(--y);}
 
+/* ── GLOW FX ── */
+@keyframes orb-float{0%{transform:translate(0,0) scale(1);}100%{transform:translate(40px,60px) scale(1.1);}}
+@keyframes cdl-glow{0%,100%{text-shadow:0 0 10px rgba(245,197,24,.55),0 0 22px rgba(245,197,24,.2);}50%{text-shadow:0 0 20px rgba(245,197,24,1),0 0 40px rgba(245,197,24,.5),0 0 60px rgba(245,197,24,.15);}}
+@keyframes electric{0%,100%{opacity:.7;}40%{opacity:1;}50%{opacity:.4;}60%{opacity:1;}}
+.bg-fx{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.bg-orb{position:absolute;border-radius:50%;filter:blur(100px);animation:orb-float 12s ease-in-out infinite alternate;}
+.bg-orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(245,197,24,.07) 0%,transparent 65%);top:-200px;right:-150px;}
+.bg-orb-2{width:400px;height:400px;background:radial-gradient(circle,rgba(59,130,246,.04) 0%,transparent 65%);bottom:0;left:-180px;animation-delay:-6s;}
+.bg-orb-3{width:250px;height:250px;background:radial-gradient(circle,rgba(245,197,24,.04) 0%,transparent 65%);bottom:30%;right:20%;animation-delay:-3s;}
+
+/* Sidebar CDL glow */
+.sb-name{animation:cdl-glow 3s ease-in-out infinite;color:var(--y) !important;}
+.sb-logo{font-size:13px !important;letter-spacing:-.5px;font-weight:900 !important;}
+
+/* Mobile CDL badge */
+.cdl-mobile-badge{font-weight:900;font-size:17px;letter-spacing:-.5px;color:var(--y);animation:cdl-glow 3s ease-in-out infinite;display:none;line-height:1;margin-bottom:2px;}
+
+/* ── METRIC ICONS (SVG) ── */
+.metric-icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;margin-bottom:10px;flex-shrink:0;}
+.metric-icon svg{width:17px;height:17px;}
+.metric.yellow .metric-icon{background:rgba(245,197,24,.15);color:var(--y);}
+.metric.green  .metric-icon{background:rgba(16,185,129,.15);color:var(--g);}
+.metric.blue   .metric-icon{background:rgba(59,130,246,.15);color:var(--b);}
+.metric.red    .metric-icon{background:rgba(239,68,68,.15);color:var(--r);}
+
+/* ── STATUS CHIPS ── */
+.status-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.s-chip{border-radius:12px;padding:10px 8px;text-align:center;border:1px solid var(--border);transition:border .2s;}
+.s-chip-val{font-size:24px;font-weight:800;line-height:1.1;}
+.s-chip-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:4px;color:var(--tm);}
+.s-chip.pend{background:rgba(245,197,24,.06);border-color:rgba(245,197,24,.2);}
+.s-chip.pend .s-chip-val{color:var(--y);}
+.s-chip.prog{background:rgba(59,130,246,.06);border-color:rgba(59,130,246,.2);}
+.s-chip.prog .s-chip-val{color:var(--b);}
+.s-chip.done{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2);}
+.s-chip.done .s-chip-val{color:var(--g);}
+
+/* ── DRIVER SUMMARY ── */
+.driver-sum-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--card2);border-radius:10px;margin-bottom:5px;}
+.driver-sum-name{font-size:13px;font-weight:700;}
+.driver-sum-right{display:flex;align-items:center;gap:8px;}
+.driver-sum-stat{font-size:11px;color:var(--tm);}
+.driver-sum-badge{background:var(--yd);color:var(--y);font-size:10px;font-weight:800;border-radius:6px;padding:2px 7px;}
+
+/* ── SVG CHART ── */
+.chart-svg{width:100%;display:block;overflow:visible;}
+
 /* ── MOBILE ── */
 @media(max-width:768px){
   /* Hide sidebar, show bottom nav */
@@ -366,10 +413,19 @@ a{text-decoration:none;color:inherit;}
 
   /* Order actions: full width buttons */
   .btn-action{flex:1;justify-content:center;}
+
+  /* New elements mobile */
+  .cdl-mobile-badge{display:block;}
+  .status-row{gap:6px;}
+  .s-chip{padding:8px 6px;}
+  .s-chip-val{font-size:20px;}
+  .s-chip-lbl{font-size:9px;}
 }
 </style>
 </head>
 <body>
+
+<div class="bg-fx"><div class="bg-orb bg-orb-1"></div><div class="bg-orb bg-orb-2"></div><div class="bg-orb bg-orb-3"></div></div>
 
 <!-- ══ LOGIN ══ -->
 <div id="login">
@@ -396,7 +452,7 @@ a{text-decoration:none;color:inherit;}
   <!-- SIDEBAR (desktop) -->
   <aside class="sidebar">
     <div class="sb-brand">
-      <div class="sb-logo">C</div>
+      <div class="sb-logo">59</div>
       <div><div class="sb-name">CDL59</div><div class="sb-sub">Administration</div></div>
     </div>
     <div class="sb-divider"></div>
@@ -420,6 +476,7 @@ a{text-decoration:none;color:inherit;}
   <main class="main">
     <div class="topbar">
       <div class="topbar-left">
+        <div class="cdl-mobile-badge">CDL59</div>
         <div class="page-title" id="page-title">Dashboard</div>
         <div class="page-sub" id="page-sub">Vue d'ensemble du shop</div>
       </div>
@@ -433,41 +490,54 @@ a{text-decoration:none;color:inherit;}
     <div id="page-dashboard" class="content">
       <div class="metrics">
         <div class="metric yellow">
-          <div class="metric-icon">📦</div>
+          <div class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
           <div class="metric-val" id="d-orders">—</div>
           <div class="metric-lbl">Commandes</div>
           <div class="metric-sub" id="d-orders-sub"></div>
         </div>
         <div class="metric green">
-          <div class="metric-icon">💰</div>
+          <div class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><text x="12" y="19" text-anchor="middle" font-size="7" font-weight="700" fill="currentColor" stroke="none">€</text></svg></div>
           <div class="metric-val" id="d-revenue">—</div>
           <div class="metric-lbl">Revenus</div>
           <div class="metric-sub" id="d-revenue-sub"></div>
         </div>
         <div class="metric blue">
-          <div class="metric-icon">🛵</div>
+          <div class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
           <div class="metric-val" id="d-delivery">—</div>
           <div class="metric-lbl">Livraison</div>
           <div class="metric-sub" id="d-delivery-sub"></div>
         </div>
         <div class="metric red">
-          <div class="metric-icon">👥</div>
+          <div class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
           <div class="metric-val" id="d-active">—</div>
           <div class="metric-lbl">Actifs</div>
         </div>
       </div>
 
-      <div class="dash-bottom-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:16px;">
-          <div class="section-title" style="margin-bottom:12px;">Par produit</div>
-          <div class="breakdown-row"><span>🟡 TANK 2000g</span><span class="breakdown-val" id="d-tank">—</span></div>
-          <div class="breakdown-row"><span>⚫ Bonbonne 666g</span><span class="breakdown-val" id="d-bonbonne">—</span></div>
+      <!-- Statuts du jour -->
+      <div class="status-row">
+        <div class="s-chip pend"><div class="s-chip-val" id="st-pending">—</div><div class="s-chip-lbl">En attente</div></div>
+        <div class="s-chip prog"><div class="s-chip-val" id="st-assigned">—</div><div class="s-chip-lbl">En cours</div></div>
+        <div class="s-chip done"><div class="s-chip-val" id="st-delivered">—</div><div class="s-chip-lbl">Livrées</div></div>
+      </div>
+
+      <div class="dash-bottom-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:14px;">
+          <div class="section-title" style="margin-bottom:10px;">Par produit</div>
+          <div class="breakdown-row"><span style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--y);display:inline-block;"></span>TANK 2000g</span><span class="breakdown-val" id="d-tank">—</span></div>
+          <div class="breakdown-row"><span style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--ts);display:inline-block;"></span>Bonbonne 666g</span><span class="breakdown-val" id="d-bonbonne">—</span></div>
         </div>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:16px;">
-          <div class="section-title" style="margin-bottom:12px;">7 derniers jours</div>
-          <div class="mini-chart" id="week-chart"></div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:14px;">
+          <div class="section-title" style="margin-bottom:10px;">7 derniers jours</div>
+          <div id="week-chart"></div>
         </div>
       </div>
+
+      <!-- Livreurs du jour -->
+      <div class="section-hd" style="margin-bottom:8px;">
+        <span class="section-title">Livreurs aujourd'hui</span>
+      </div>
+      <div id="driver-today" style="margin-bottom:16px;"></div>
 
       <div class="section-hd"><span class="section-title">Commandes récentes</span></div>
       <div class="orders-grid" id="recent-orders"></div>
@@ -787,7 +857,14 @@ async function apiFetch(path, opts={}) {
 async function loadDashboard() {
   await liveUpdate();
   const t = todayStr();
-  const today = await apiFetch(`/admin/stats?from=${t}&to=${t}`);
+  const [today, week, drivers, schedule] = await Promise.all([
+    apiFetch(`/admin/stats?from=${t}&to=${t}`),
+    apiFetch(`/admin/stats?from=${daysAgo(6)}&to=${t}`),
+    apiFetch('/admin/drivers'),
+    apiFetch(`/admin/schedule?from=${t}&to=${t}`).catch(()=>({slots:[]}))
+  ]);
+
+  // Métriques
   document.getElementById('d-orders').textContent    = today.ordersCount;
   document.getElementById('d-revenue').textContent   = (today.productRevenue||0)+'€';
   document.getElementById('d-delivery').textContent  = (today.deliveryRevenue||0)+'€';
@@ -798,21 +875,68 @@ async function loadDashboard() {
   document.getElementById('d-tank').textContent      = today.tankCount+' cmd';
   document.getElementById('d-bonbonne').textContent  = today.bonbonneCount+' cmd';
 
-  const week = await apiFetch(`/admin/stats?from=${daysAgo(6)}&to=${t}`);
-  buildMiniChart(week.orders||[], daysAgo(6), t);
+  // Statuts du jour (schedule)
+  const slots = schedule.slots||[];
+  const stPend = slots.filter(s=>!s.driver_id&&s.status!=='delivered').length;
+  const stProg = slots.filter(s=>s.driver_id&&s.status!=='delivered').length;
+  const stDone = slots.filter(s=>s.status==='delivered').length;
+  document.getElementById('st-pending').textContent  = stPend;
+  document.getElementById('st-assigned').textContent = stProg;
+  document.getElementById('st-delivered').textContent= stDone;
+
+  // Graphique SVG
+  buildSvgChart(week.orders||[], daysAgo(6), t);
+
+  // Livreurs du jour
+  const todaySlots = slots;
+  const driverMap = {};
+  todaySlots.forEach(s => {
+    if (!s.driver_id) return;
+    if (!driverMap[s.driver_id]) driverMap[s.driver_id] = {name: s.driver_name||'?', total:0, done:0};
+    driverMap[s.driver_id].total++;
+    if (s.status==='delivered') driverMap[s.driver_id].done++;
+  });
+  const driverEl = document.getElementById('driver-today');
+  const dEntries = Object.values(driverMap);
+  if (!dEntries.length) {
+    driverEl.innerHTML = `<div class="driver-sum-empty">Aucun livreur actif aujourd'hui</div>`;
+  } else {
+    driverEl.innerHTML = dEntries.map(d => `
+      <div class="driver-sum-row">
+        <div class="driver-sum-name">${d.name}</div>
+        <div class="driver-sum-right">
+          <span class="driver-sum-stat">${d.done}/${d.total} livraisons</span>
+          ${d.done===d.total&&d.total>0?'<span class="driver-sum-badge">✓ Terminé</span>':'<span class="driver-sum-badge" style="background:rgba(59,130,246,.15);color:var(--b);">En cours</span>'}
+        </div>
+      </div>`).join('');
+  }
+
+  // Commandes récentes
   const recentPending = (today.orders||[]).filter(o => o.status !== 'delivered').slice(0,5);
   renderOrderList(document.getElementById('recent-orders'), recentPending, true);
 }
 
-function buildMiniChart(orders, from, to) {
+function buildSvgChart(orders, from, to) {
   const wrap = document.getElementById('week-chart');
   const days = [];
   const d = new Date(from), end = new Date(to);
   while(d <= end) { days.push(d.toISOString().slice(0,10)); d.setDate(d.getDate()+1); }
-  const counts = {}; days.forEach(d => counts[d]=0);
-  orders.forEach(o => { const k=o.timestamp?.slice(0,10); if(k&&counts[k]!==undefined) counts[k]++; });
-  const max = Math.max(...Object.values(counts),1);
-  wrap.innerHTML = days.map(d => `<div class="mini-bar" style="height:${Math.max(4,Math.round(counts[d]/max*44))}px" title="${d}: ${counts[d]} cmd"></div>`).join('');
+  const rev = {}; days.forEach(d => rev[d]=0);
+  orders.forEach(o => { const k=o.timestamp?.slice(0,10); if(k&&rev[k]!==undefined) rev[k]+=(o.total||0); });
+  const max = Math.max(...Object.values(rev), 1);
+  const W=280, H=56, pad=2, bw=Math.floor((W-pad*(days.length+1))/days.length);
+  const DAYS=['D','L','M','M','J','V','S'];
+  const bars = days.map((day,i) => {
+    const h = Math.max(3, Math.round(rev[day]/max*(H-16)));
+    const x = pad + i*(bw+pad);
+    const y = H-16-h;
+    const label = DAYS[new Date(day+'T12:00:00').getDay()];
+    const val = rev[day]>0 ? (rev[day]>=1000?(rev[day]/1000).toFixed(1)+'k':rev[day]+'') : '';
+    return `<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="3" fill="rgba(245,197,24,${rev[day]>0?.75:.15})"/>
+      <text x="${x+bw/2}" y="${H-3}" class="chart-bar-label">${label}</text>
+      ${val?`<text x="${x+bw/2}" y="${y-3}" class="chart-bar-val" style="font-size:8px">${val}</text>`:''}`;
+  }).join('');
+  wrap.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${bars}</svg>`;
 }
 
 // ─── ORDERS ──────────────────────────────────────────────────────────────────
