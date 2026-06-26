@@ -750,6 +750,15 @@ if ('serviceWorker' in navigator) {
 let secret = '';
 let planOrder = null;
 let weekOffset = 0;
+
+function tgLink(u) {
+  if (!u) return '—';
+  const handle = u.startsWith('@') ? u.slice(1) : null;
+  const idM = u.match(/ID:\s*(\d+)/);
+  if (!handle && !idM) return u;
+  const href = handle ? `https://t.me/${handle}` : `tg://user?id=${idM[1]}`;
+  return `<a href="${href}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--b);text-decoration:none;font-weight:700">${u}</a>`;
+}
 const _ordersMap = {};
 const PAGES = ['dashboard','orders','agenda','drivers','clients'];
 
@@ -998,7 +1007,7 @@ function renderOrderList(container, orders, compact) {
         <div class="order-type-badge ${isLiv?'type-livraison':'type-surplace'}">${isLiv?'🛵':'🏠'}</div>
         <div class="order-meta">
           <div class="order-meta-top">
-            <span class="order-user">${o.username}</span>
+            <span class="order-user">${tgLink(o.username)}</span>
             <span class="order-time">${fmtDate(o.timestamp)} ${fmtTime(o.timestamp)}</span>
           </div>
           <div class="order-desc">${o.name} — ${o.option}${isLiv&&o.deliveryAddress?' · 📍 '+o.deliveryAddress:''}</div>
@@ -1011,7 +1020,7 @@ function renderOrderList(container, orders, compact) {
       </div>
       <div class="order-detail">
         <div class="detail-grid">
-          <div class="detail-field"><label>Client</label><span>${o.username}</span></div>
+          <div class="detail-field"><label>Client</label><span>${tgLink(o.username)}</span></div>
           <div class="detail-field"><label>Heure</label><span>${fmtDate(o.timestamp)} ${fmtTime(o.timestamp)}</span></div>
           <div class="detail-field"><label>Produit</label><span>${o.name}</span></div>
           <div class="detail-field"><label>Option</label><span>${o.option}</span></div>
@@ -1050,7 +1059,7 @@ function openPlanModal(orderId) {
   if (!planOrder) return;
   const o = planOrder;
   document.getElementById('modal-summary').innerHTML = `
-    <div class="modal-order-row"><span>Client</span><strong>${o.username}</strong></div>
+    <div class="modal-order-row"><span>Client</span><strong>${tgLink(o.username)}</strong></div>
     <div class="modal-order-row"><span>Produit</span><strong>${o.name} — ${o.option}</strong></div>
     <div class="modal-order-row"><span>Adresse</span><strong>${o.deliveryAddress||'—'}</strong></div>
     <div class="modal-order-row"><span>Distance</span><strong>${o.distanceKm||0} km</strong></div>
@@ -1151,7 +1160,7 @@ let _calSlot = null;
 function openCalSheet(slot) {
   _calSlot = slot;
   document.getElementById('cs-title').textContent   = `📅 ${slot.date} à ${slot.time||'?'}`;
-  document.getElementById('cs-client').textContent  = slot.client;
+  document.getElementById('cs-client').innerHTML    = tgLink(slot.client);
   document.getElementById('cs-product').textContent = slot.product||'—';
   document.getElementById('cs-address').textContent = slot.address||'—';
   document.getElementById('cs-notes').textContent   = slot.notes||'—';
