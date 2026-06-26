@@ -1,15 +1,21 @@
-const VERSION = '1782469146';
+﻿const VERSION = '1782469566';
 const CACHE = 'cdl59-' + VERSION;
 
 self.addEventListener('install', () => self.skipWaiting());
 
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
-      .then(() => self.clients.matchAll({includeUncontrolled: true}))
-      .then(clients => clients.forEach(c => c.postMessage({type: 'SW_UPDATED'})))
+    caches.keys().then(keys => {
+      const old = keys.filter(k => k !== CACHE);
+      const isUpgrade = old.length > 0;
+      return Promise.all(old.map(k => caches.delete(k)))
+        .then(() => self.clients.claim())
+        .then(() => isUpgrade
+          ? self.clients.matchAll({includeUncontrolled: true})
+              .then(clients => clients.forEach(c => c.postMessage({type: 'SW_UPDATED'})))
+          : null
+        );
+    })
   );
 });
 
@@ -35,9 +41,9 @@ self.addEventListener('fetch', e => {
   );
 });
 
-// ── PUSH NOTIFICATIONS ──────────────────────────────────────────────────────
+// â”€â”€ PUSH NOTIFICATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 self.addEventListener('push', e => {
-  let data = {title: 'CDL59', body: '🚨 Nouvelle livraison disponible !', url: '/cdl59-app/driver/'};
+  let data = {title: 'CDL59', body: 'ðŸš¨ Nouvelle livraison disponible !', url: '/cdl59-app/driver/'};
   try { data = {...data, ...e.data.json()}; } catch(err) {}
   e.waitUntil(
     self.registration.showNotification(data.title, {
