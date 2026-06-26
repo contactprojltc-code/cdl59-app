@@ -1,0 +1,14 @@
+{
+  "name": "CDL59 Livreur",
+  "short_name": "CDL59",
+  "description": "Portail livreur CDL59",
+  "start_url": "/cdl59-app/driver/",
+  "scope": "/cdl59-app/driver/",
+  "display": "standalone",
+  "background_color": "#05080f",
+  "theme_color": "#f5c518",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/cdl59-app/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
