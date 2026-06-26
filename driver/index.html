@@ -160,6 +160,10 @@ button{cursor:pointer;}
 .fval.r{color:var(--r);}
 .empty{text-align:center;padding:40px 20px;color:var(--ts);font-size:13px;}
 </style>
+<link rel="manifest" href="/cdl59-app/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CDL59">
 </head>
 <body>
 
@@ -347,6 +351,45 @@ function initDriver() {
   buildCalendar();
   loadStats();
   setInterval(driverAutoRefresh, 10000);
+  setTimeout(setupPush, 2000);
+}
+
+// ── PUSH NOTIFICATIONS ──────────────────────────────────────────────────────
+const VAPID_PUBLIC = 'BAJsK154SMfiYy7rqMv7xymbScOLJz2ymPoNJv0Lv1aJK-GY3DcvqB7HV8_jD2NesrmXhuQLchufEePXeowvAqM';
+
+function urlB64ToUint8(b64) {
+  const pad = '='.repeat((4 - b64.length % 4) % 4);
+  const raw = atob((b64 + pad).replace(/-/g,'+').replace(/_/g,'/'));
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function setupPush() {
+  try {
+    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    const reg = await navigator.serviceWorker.ready;
+    // Vérifier si déjà souscrit
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) { await savePushSub(existing); return; }
+    // Demander permission
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') return;
+    // Souscrire
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlB64ToUint8(VAPID_PUBLIC)
+    });
+    await savePushSub(sub);
+  } catch(e) { console.warn('Push setup:', e); }
+}
+
+async function savePushSub(sub) {
+  try {
+    await fetch(`${API}/push/subscribe`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({code: driverCode, subscription: sub.toJSON()})
+    });
+  } catch(e) {}
 }
 async function driverAutoRefresh() {
   if (_driverPage === 'agenda') await buildCalendar();
