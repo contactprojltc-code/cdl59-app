@@ -1,4 +1,4 @@
-const VERSION = '1782466906';
+const VERSION = '1782468012';
 const CACHE = 'cdl59-' + VERSION;
 
 self.addEventListener('install', () => self.skipWaiting());
