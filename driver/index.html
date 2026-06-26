@@ -49,7 +49,7 @@ button{cursor:pointer;}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:60;}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 4px;font-size:10px;font-weight:600;color:var(--ts);transition:color .15s;position:relative;}
 .nav-item.active{color:var(--y);}
-.nav-item .icon{font-size:20px;margin-bottom:2px;}
+.nav-item .icon{width:22px;height:22px;margin-bottom:2px;display:block;stroke:currentColor;}
 .nav-badge{position:absolute;top:6px;right:calc(50% - 18px);background:var(--y);color:#000;font-size:9px;font-weight:900;border-radius:999px;padding:1px 5px;min-width:16px;text-align:center;}
 
 /* ── PAGES ── */
@@ -248,9 +248,18 @@ button{cursor:pointer;}
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-    <div class="nav-item active" id="nav-agenda" onclick="switchPage('agenda')"><span class="icon">📅</span>Agenda</div>
-    <div class="nav-item" id="nav-mes" onclick="switchPage('mes')"><span class="icon">🏍️</span>Mes livraisons<span class="nav-badge" id="mes-badge" style="display:none">0</span></div>
-    <div class="nav-item" id="nav-stats" onclick="switchPage('stats')"><span class="icon">📊</span>Mes stats</div>
+    <div class="nav-item active" id="nav-agenda" onclick="switchPage('agenda')">
+      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Agenda
+    </div>
+    <div class="nav-item" id="nav-mes" onclick="switchPage('mes')">
+      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      Mes livraisons<span class="nav-badge" id="mes-badge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" id="nav-stats" onclick="switchPage('stats')">
+      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Mes stats
+    </div>
   </nav>
 </div>
 
