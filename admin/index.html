@@ -482,6 +482,7 @@ a{text-decoration:none;color:inherit;}
       </div>
       <div class="topbar-right">
         <div class="live-chip"><span class="dot"></span><span id="topbar-time">—</span></div>
+        <button onclick="testPush()" style="background:rgba(59,130,246,.12);border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;color:var(--b);cursor:pointer;" title="Tester les notifications push">🔔</button>
         <button onclick="clearAllData()" style="background:var(--rd);border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;color:var(--r);cursor:pointer;" title="Effacer toutes les données">🗑️</button>
       </div>
     </div>
@@ -852,6 +853,12 @@ async function autoRefresh() {
   else if (_currentPage === 'orders') { await loadOrders(); }
   else if (_currentPage === 'agenda') { await loadCalendar(); }
   else if (_currentPage === 'clients') { await loadClients(); }
+}
+
+async function testPush() {
+  const r = await apiFetch('/push/test', {method:'POST', body:'{}'}).catch(e => ({error: String(e)}));
+  if (r.error) { alert('Erreur: ' + r.error); return; }
+  alert(`🔔 Push test\n\nPywebpush: ${r.pywebpush ? '✅ installé' : '❌ absent'}\nSouscriptions: ${r.subscriptions}\nEnvoyé: ${r.sent ? '✅' : '❌ (rien à envoyer)'}`);
 }
 
 async function clearAllData() {
