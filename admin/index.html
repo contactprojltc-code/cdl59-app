@@ -786,7 +786,10 @@ window.addEventListener('DOMContentLoaded', () => {
     const {k, exp} = JSON.parse(raw);
     if (!k || Date.now() > exp) { localStorage.removeItem('cdl_s'); return; }
     secret = k;
-    fetch(`${API}/admin/stats`, {headers:{'X-Secret':k}}).then(r => r.ok ? init() : (localStorage.removeItem('cdl_s'))).catch(()=>{});
+    fetch(`${API}/admin/stats`, {headers:{'X-Secret':k}}).then(r => {
+      if (r.ok) return init();
+      if (r.status === 401) localStorage.removeItem('cdl_s'); // seulement si token invalide, pas sur 5xx
+    }).catch(()=>{}); // erreur réseau → on garde le token, on laisse l'écran login
   } catch(e) { localStorage.removeItem('cdl_s'); }
 });
 
@@ -870,9 +873,9 @@ async function loadDashboard() {
   await liveUpdate();
   const t = todayStr();
   const [today, week, drivers, schedule] = await Promise.all([
-    apiFetch(`/admin/stats?from=${t}&to=${t}`),
-    apiFetch(`/admin/stats?from=${daysAgo(6)}&to=${t}`),
-    apiFetch('/admin/drivers'),
+    apiFetch(`/admin/stats?from=${t}&to=${t}`).catch(()=>({})),
+    apiFetch(`/admin/stats?from=${daysAgo(6)}&to=${t}`).catch(()=>({orders:[]})),
+    apiFetch('/admin/drivers').catch(()=>[]),
     apiFetch(`/admin/schedule?from=${t}&to=${t}`).catch(()=>({slots:[]}))
   ]);
 
