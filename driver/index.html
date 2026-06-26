@@ -295,14 +295,23 @@ async function tryLogin() {
   }
 }
 function logout() { localStorage.removeItem('cdl_dc'); location.reload(); }
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   try {
     const raw = localStorage.getItem('cdl_dc');
     if (!raw) return;
     const {k, exp} = JSON.parse(raw);
     if (!k || Date.now() > exp) { localStorage.removeItem('cdl_dc'); return; }
-    document.getElementById('code-inp').value = k;
-    tryLogin();
+    const r = await fetch(`${API}/driver/auth`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code: k})
+    }).catch(()=>null);
+    if (r?.ok) {
+      const d = await r.json();
+      driverCode = k; driverInfo = d.driver;
+      localStorage.setItem('cdl_dc', JSON.stringify({k, exp: Date.now() + 30*24*60*60*1000}));
+      initDriver();
+    } else {
+      localStorage.removeItem('cdl_dc');
+    }
   } catch(e) { localStorage.removeItem('cdl_dc'); }
 });
 
