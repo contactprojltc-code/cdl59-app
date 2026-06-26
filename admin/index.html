@@ -754,17 +754,25 @@ const _ordersMap = {};
 const PAGES = ['dashboard','orders','agenda','drivers','clients'];
 
 // ─── LOGIN ───────────────────────────────────────────────────────────────────
-function tryLogin() {
+async function tryLogin() {
   const key = document.getElementById('secret-inp').value.trim();
   if (!key) return;
-  fetch(`${API}/admin/stats`, { headers: { 'X-Secret': key } })
-    .then(r => {
-      if (r.ok) {
-        secret = key;
-        localStorage.setItem('cdl_s', JSON.stringify({k: key, exp: Date.now() + 30*24*60*60*1000}));
-        init();
-      } else showErr('Clé incorrecte.');
-    }).catch(() => showErr('Serveur inaccessible.'));
+  const btn = document.querySelector('#login .btn-primary');
+  btn.disabled = true; btn.textContent = 'Connexion…';
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 8000);
+  let r = null;
+  try {
+    r = await fetch(`${API}/admin/stats`, {headers:{'X-Secret':key}, signal:ctrl.signal});
+  } catch(e) {} finally { clearTimeout(tid); }
+  btn.disabled = false; btn.textContent = 'Accéder →';
+  if (r?.ok) {
+    secret = key;
+    localStorage.setItem('cdl_s', JSON.stringify({k: key, exp: Date.now() + 30*24*60*60*1000}));
+    init();
+  } else {
+    showErr(r ? 'Clé incorrecte.' : 'Serveur inaccessible, réessaie dans 30s.');
+  }
 }
 function showErr(m) { const e = document.getElementById('login-err'); e.textContent = m; e.style.display = 'block'; }
 function logout() { localStorage.removeItem('cdl_s'); location.reload(); }
