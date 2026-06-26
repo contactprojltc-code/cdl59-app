@@ -308,18 +308,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (!raw) return;
     const {k, exp} = JSON.parse(raw);
     if (!k || Date.now() > exp) { localStorage.removeItem('cdl_dc'); return; }
-    const r = await fetch(`${API}/driver/auth`, {
+    // Petit délai pour laisser iOS établir la connexion réseau
+    await new Promise(res => setTimeout(res, 300));
+    let r = null;
+    try { r = await fetch(`${API}/driver/auth`, {
       method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code: k})
-    }).catch(()=>null);
+    }); } catch(e) {}
     if (r?.ok) {
       const d = await r.json();
       driverCode = k; driverInfo = d.driver;
       localStorage.setItem('cdl_dc', JSON.stringify({k, exp: Date.now() + 30*24*60*60*1000}));
       initDriver();
-    } else {
-      localStorage.removeItem('cdl_dc');
     }
-  } catch(e) { localStorage.removeItem('cdl_dc'); }
+    // Si réseau KO on ne touche pas au localStorage — on laisse l'écran de login visible
+  } catch(e) {}
 });
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
