@@ -192,7 +192,14 @@ button{cursor:pointer;}
       <div class="header-avatar" id="h-icon">🛵</div>
       <div><div class="header-name" id="h-name">—</div><div class="header-vehicle" id="h-vehicle">—</div></div>
     </div>
-    <button class="header-logout" onclick="logout()">Déconnexion</button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button id="bell-btn" onclick="togglePush()" title="Notifications" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 8px;display:flex;align-items:center;justify-content:center;transition:all .2s;">
+        <svg id="bell-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ts)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </button>
+      <button class="header-logout" onclick="logout()">Déconnexion</button>
+    </div>
   </div>
 
   <!-- AGENDA PAGE -->
@@ -302,16 +309,27 @@ const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 async function tryLogin() {
   const code = document.getElementById('code-inp').value.trim().toUpperCase();
   if (!code) return;
-  const r = await fetch(`${API}/driver/auth`, {
-    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code})
-  }).catch(()=>null);
+  const btn = document.querySelector('.btn-primary');
+  btn.disabled = true; btn.textContent = '…';
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 8000);
+  let r = null;
+  try {
+    r = await fetch(`${API}/driver/auth`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({code}), signal: ctrl.signal
+    });
+  } catch(e) {} finally { clearTimeout(tid); }
+  btn.disabled = false; btn.textContent = 'Accéder →';
   if (r?.ok) {
     const d = await r.json();
     driverCode = code; driverInfo = d.driver;
     localStorage.setItem('cdl_dc', JSON.stringify({k: code, exp: Date.now() + 30*24*60*60*1000}));
     initDriver();
   } else {
-    document.getElementById('login-err').style.display = 'block';
+    const err = document.getElementById('login-err');
+    err.textContent = r ? 'Code invalide. Contacte l\'admin.' : 'Serveur inaccessible, réessaie.';
+    err.style.display = 'block';
   }
 }
 function logout() { localStorage.removeItem('cdl_dc'); location.reload(); }
@@ -351,7 +369,7 @@ function initDriver() {
   buildCalendar();
   loadStats();
   setInterval(driverAutoRefresh, 10000);
-  setTimeout(setupPush, 2000);
+  updateBellState();
 }
 
 // ── PUSH NOTIFICATIONS ──────────────────────────────────────────────────────
@@ -363,33 +381,43 @@ function urlB64ToUint8(b64) {
   return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 
-async function setupPush() {
+async function updateBellState() {
+  const btn = document.getElementById('bell-btn');
+  const icon = document.getElementById('bell-icon');
+  if (!btn || !('Notification' in window) || !('PushManager' in window)) return;
   try {
-    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
     const reg = await navigator.serviceWorker.ready;
-    // Vérifier si déjà souscrit
-    const existing = await reg.pushManager.getSubscription();
-    if (existing) { await savePushSub(existing); return; }
-    // Demander permission
+    const sub = await reg.pushManager.getSubscription();
+    const on = !!sub && Notification.permission === 'granted';
+    icon.setAttribute('stroke', on ? '#10b981' : 'var(--ts)');
+    btn.style.borderColor = on ? 'rgba(16,185,129,.4)' : 'var(--border)';
+  } catch(e) {}
+}
+
+async function togglePush() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    alert('Les notifications ne sont pas supportées sur cet appareil.'); return;
+  }
+  const reg = await navigator.serviceWorker.ready;
+  const existing = await reg.pushManager.getSubscription();
+  if (existing) {
+    if (confirm('Désactiver les notifications de livraison ?')) {
+      await existing.unsubscribe();
+    }
+  } else {
+    if (!confirm('Activer les notifications pour recevoir les nouvelles livraisons ?')) return;
     const perm = await Notification.requestPermission();
-    if (perm !== 'granted') return;
-    // Souscrire
+    if (perm !== 'granted') { alert('Permission refusée. Active les notifications dans les réglages.'); return; }
     const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlB64ToUint8(VAPID_PUBLIC)
     });
-    await savePushSub(sub);
-  } catch(e) { console.warn('Push setup:', e); }
-}
-
-async function savePushSub(sub) {
-  try {
     await fetch(`${API}/push/subscribe`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({code: driverCode, subscription: sub.toJSON()})
-    });
-  } catch(e) {}
+    }).catch(()=>{});
+  }
+  updateBellState();
 }
 async function driverAutoRefresh() {
   if (_driverPage === 'agenda') await buildCalendar();
