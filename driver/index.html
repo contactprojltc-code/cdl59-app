@@ -288,16 +288,22 @@ async function tryLogin() {
   if (r?.ok) {
     const d = await r.json();
     driverCode = code; driverInfo = d.driver;
-    sessionStorage.setItem('cdl_dc', code);
+    localStorage.setItem('cdl_dc', JSON.stringify({k: code, exp: Date.now() + 30*24*60*60*1000}));
     initDriver();
   } else {
     document.getElementById('login-err').style.display = 'block';
   }
 }
-function logout() { sessionStorage.removeItem('cdl_dc'); location.reload(); }
+function logout() { localStorage.removeItem('cdl_dc'); location.reload(); }
 window.addEventListener('DOMContentLoaded', () => {
-  const s = sessionStorage.getItem('cdl_dc');
-  if (s) { document.getElementById('code-inp').value=s; tryLogin(); }
+  try {
+    const raw = localStorage.getItem('cdl_dc');
+    if (!raw) return;
+    const {k, exp} = JSON.parse(raw);
+    if (!k || Date.now() > exp) { localStorage.removeItem('cdl_dc'); return; }
+    document.getElementById('code-inp').value = k;
+    tryLogin();
+  } catch(e) { localStorage.removeItem('cdl_dc'); }
 });
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
