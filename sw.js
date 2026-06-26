@@ -48,8 +48,8 @@ self.addEventListener('push', e => {
   e.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: '/cdl59-app/icon.svg',
-      badge: '/cdl59-app/icon.svg',
+      icon: '/cdl59-app/icon.png',
+      badge: '/cdl59-app/icon.png',
       tag: 'cdl59-delivery',
       renotify: true,
       vibrate: [200, 100, 200, 100, 300],
@@ -68,4 +68,5 @@ self.addEventListener('notificationclick', e => {
     })
   );
 });
+
 
