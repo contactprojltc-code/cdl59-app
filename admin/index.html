@@ -670,8 +670,11 @@ function tryLogin() {
   if (!key) return;
   fetch(`${API}/admin/stats`, { headers: { 'X-Secret': key } })
     .then(r => {
-      if (r.ok) { secret = key; localStorage.setItem('cdl_s', key); init(); }
-      else showErr('Clé incorrecte.');
+      if (r.ok) {
+        secret = key;
+        localStorage.setItem('cdl_s', JSON.stringify({k: key, exp: Date.now() + 30*24*60*60*1000}));
+        init();
+      } else showErr('Clé incorrecte.');
     }).catch(() => showErr('Serveur inaccessible.'));
 }
 function showErr(m) { const e = document.getElementById('login-err'); e.textContent = m; e.style.display = 'block'; }
@@ -688,8 +691,14 @@ function init() {
   setInterval(autoRefresh, 10000);
 }
 window.addEventListener('DOMContentLoaded', () => {
-  const s = localStorage.getItem('cdl_s');
-  if (s) { secret = s; fetch(`${API}/admin/stats`, {headers:{'X-Secret':s}}).then(r => r.ok ? init() : null).catch(()=>{}); }
+  try {
+    const raw = localStorage.getItem('cdl_s');
+    if (!raw) return;
+    const {k, exp} = JSON.parse(raw);
+    if (!k || Date.now() > exp) { localStorage.removeItem('cdl_s'); return; }
+    secret = k;
+    fetch(`${API}/admin/stats`, {headers:{'X-Secret':k}}).then(r => r.ok ? init() : (localStorage.removeItem('cdl_s'))).catch(()=>{});
+  } catch(e) { localStorage.removeItem('cdl_s'); }
 });
 
 // ─── NAV ─────────────────────────────────────────────────────────────────────
