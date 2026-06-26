@@ -499,8 +499,8 @@ async function buildCalendar() {
 }
 
 function placeCalEvent(slot) {
-  if (!slot.time) return;
-  const [h,m] = slot.time.split(':').map(Number);
+  const timeStr = slot.time || '09:00';
+  const [h,m] = timeStr.split(':').map(Number);
   const col = document.getElementById('dcol-'+slot.date);
   if (!col) return;
 
