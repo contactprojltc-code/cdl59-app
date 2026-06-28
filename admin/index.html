@@ -1135,20 +1135,45 @@ function buildCalendar() {
     </div>`).join('');
 }
 
+function calcOverlapLayout(slots) {
+  const toMin = t => { const [h,m] = (t||'00:00').split(':').map(Number); return h*60+m; };
+  const result = new Map();
+  const sorted = [...slots].sort((a,b) => toMin(a.time)-toMin(b.time));
+  const cols = [];
+  sorted.forEach(s => {
+    const start = toMin(s.time), end = start+60;
+    let c = cols.findIndex(e => start >= e);
+    if (c === -1) { c = cols.length; cols.push(end); } else cols[c] = end;
+    result.set(s, {col:c, total:0});
+  });
+  sorted.forEach(s => {
+    const start = toMin(s.time), end = start+60;
+    let max = 0;
+    sorted.forEach(o => { const os=toMin(o.time); if (os<end && os+60>start) max=Math.max(max,result.get(o).col); });
+    result.get(s).total = max+1;
+  });
+  return result;
+}
+
 async function loadCalendar() {
   const dates = getWeekDates();
+  const from = dates[0].toISOString().slice(0,10);
+  const to   = dates[dates.length-1].toISOString().slice(0,10);
   try {
-    const slots = await Promise.all(dates.map(d => apiFetch(`/admin/schedule?date=${d.toISOString().slice(0,10)}`).catch(()=>[])));
+    const data = await apiFetch(`/admin/schedule?from=${from}&to=${to}`).catch(()=>({slots:[]}));
     document.querySelectorAll('.cal-event').forEach(e => e.remove());
-    slots.forEach((daySlots,i) => {
-      const col = document.getElementById('day-'+dates[i].toISOString().slice(0,10));
-      if(!col) return;
-      daySlots.forEach(slot => placeEvent(col, slot));
+    const byDate = {};
+    (data.slots||[]).forEach(s => { if(!byDate[s.date]) byDate[s.date]=[]; byDate[s.date].push(s); });
+    Object.entries(byDate).forEach(([date, daySlots]) => {
+      const col = document.getElementById('day-'+date);
+      if (!col) return;
+      const layout = calcOverlapLayout(daySlots);
+      daySlots.forEach(slot => placeEvent(col, slot, layout.get(slot)||{col:0,total:1}));
     });
   } catch(e) {}
 }
 
-function placeEvent(col, slot) {
+function placeEvent(col, slot, layout = {col:0, total:1}) {
   if(!slot.time) return;
   const [h,m] = slot.time.split(':').map(Number);
   const top = h*52 + Math.round((m/60)*52);
@@ -1157,6 +1182,12 @@ function placeEvent(col, slot) {
   ev.className = `cal-event ${statusClass}`;
   ev.style.top = top+'px';
   ev.style.height = '48px';
+  if (layout.total > 1) {
+    const pct = 100 / layout.total;
+    ev.style.left  = `calc(${pct * layout.col}% + 2px)`;
+    ev.style.right = 'auto';
+    ev.style.width = `calc(${pct}% - 4px)`;
+  }
   ev.innerHTML = `<div class="cal-event-time">${slot.time}</div><div class="cal-event-name">${slot.client}</div>${slot.driver_name?`<div class="cal-event-time">🏍️ ${slot.driver_name}</div>`:''}`;
   ev.onclick = () => openCalSheet(slot);
   col.appendChild(ev);
