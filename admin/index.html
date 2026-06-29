@@ -713,7 +713,6 @@ a{text-decoration:none;color:inherit;}
   </div>
   <div class="sheet-footer">
     <button class="btn-reset" id="ds-reset-btn" onclick="resetDriverBalance()">✅ Marquer comme payé (remettre à zéro)</button>
-    <button class="btn-reset" id="ds-force-reset-btn" onclick="forceResetDriverBalance()" style="background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.25);color:var(--r);display:none">🔧 Corriger compteur (bug)</button>
     <button class="btn-close-sheet" onclick="closeDriverSheet()">Fermer</button>
   </div>
 </div>
@@ -1272,8 +1271,6 @@ async function openDriverStats(driverId) {
     const btn = document.getElementById('ds-reset-btn');
     btn.style.display = d.moneyOwed > 0 ? '' : 'none';
     // Bouton corriger : visible si balance_paid > rawOwed (compteur corrompu)
-    const fixBtn = document.getElementById('ds-force-reset-btn');
-    fixBtn.style.display = (d.balancePaid||0) > (d.rawOwed||0) ? '' : 'none';
   } catch(e) {}
   document.getElementById('driver-sheet-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('driver-sheet').classList.add('open'),10);
@@ -1292,12 +1289,6 @@ async function resetDriverBalance() {
   await openDriverStats(_currentDriverId);
 }
 
-async function forceResetDriverBalance() {
-  if(!_currentDriverId) return;
-  if(!confirm('Corriger le compteur corrompu et remettre balance_paid à zéro ?')) return;
-  await apiFetch('/admin/force-reset-balance', {method:'POST', body:JSON.stringify({id:_currentDriverId})});
-  await openDriverStats(_currentDriverId);
-}
 
 function vehicleIcon(v) { return v==='velo'?'🚴':v==='voiture'?'🚗':'🛵'; }
 function vehicleLabel(v) { return v==='velo'?'Vélo':v==='voiture'?'Voiture':'Scooter'; }
