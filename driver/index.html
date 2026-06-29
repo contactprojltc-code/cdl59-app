@@ -253,6 +253,7 @@ button{cursor:pointer;}
         <div class="finance-row"><span>⛽ Coût essence (1,98€/L)</span><span class="fval r" id="f-fuel">—</span></div>
         <div class="finance-row"><span>🏆 Bénéfice net</span><span class="fval g" id="f-net">—</span></div>
         <div class="finance-row"><span>🏪 Montant à reverser au shop</span><span class="fval r" id="f-owed">—</span></div>
+        <div class="finance-row" id="f-debug-row" style="opacity:.5;font-size:11px"><span>🔍 Brut / Déjà réglé</span><span class="fval" id="f-debug">—</span></div>
       </div>
     </div>
   </div>
@@ -741,6 +742,7 @@ async function loadStats() {
     document.getElementById('f-fuel').textContent  = '−'+(d.fuelCost||0)+'€';
     document.getElementById('f-net').textContent   = (d.netProfit||0)+'€';
     document.getElementById('f-owed').textContent  = (d.moneyOwed||0)+'€';
+    document.getElementById('f-debug').textContent = `${d.rawOwed||0}€ brut / ${d.balancePaid||0}€ réglé`;
     updateMesBadge((d.slots||[]).filter(s=>s.status!=='delivered').length);
   } catch(e) {}
 }
