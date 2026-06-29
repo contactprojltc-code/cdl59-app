@@ -951,8 +951,8 @@ async function loadDashboard() {
   }
 
   // Commandes récentes
-  const recentPending = (today.orders||[]).filter(o => o.status !== 'delivered').slice(0,5);
-  renderOrderList(document.getElementById('recent-orders'), recentPending, true);
+  const recentAll = (today.orders||[]).slice(0,5);
+  renderOrderList(document.getElementById('recent-orders'), recentAll, true);
 }
 
 function buildSvgChart(orders, from, to) {
